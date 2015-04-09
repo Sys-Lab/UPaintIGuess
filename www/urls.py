@@ -73,7 +73,7 @@ def handle_api_error(error):
     return response
 
 
-@app.before_request
+#@app.before_request
 def validate_login():
     if request.path != '/' and request.path != '/api/captcha':
         try:
@@ -201,6 +201,15 @@ def api_logout():
     request.user = None
     return redirect(url_for('/'))
 
+#-----------This part is added by Conan---------------------------
+@app.route('/login',methods=['GET']) # return the login.html
+def login():#here we need to judge the session status first and then decide to redirect to the proper page,finish it at later
+    return render_template('login.html')
+
+@app.route('/register',methods=['GET']) # return the register.html
+def register():
+    return render_template('register.html')
+#-----------------------------------------------------------------
 
 @socketio.on('join')
 def on_join(data):

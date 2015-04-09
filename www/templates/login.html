@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<!--Author: Conan-->
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome to UPaintIGuess</title>
+<link rel=stylesheet type=text/css href="{{url_for('static', filename='css/bootstrap.min.css')}}">
+<link rel=stylesheet type=text/css href="{{url_for('static', filename='css/bootstrap-responsive.min.css')}}">
+<link rel=stylesheet type=text/css href="{{url_for('static', filename='css/bootstrap-combined.min.css')}}">
+<link rel=stylesheet type=text/css href="{{url_for('static', filename='css/login.css')}}">
+</head>
+<script type=text/javascript src="{{url_for('static', filename='js/jquery-1.10.1.min.js')}}"></script>
+	<script type=text/javascript src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
+	<!--dubug message-->
+	<!--
+    <div id="header" class="container span12">
+	    {% for message in get_flashed_messages()%}
+            <div class="alert alert-error">{{message}}</div>
+        {% endfor %}
+	</div>
+	-->
+
+<body>
+	<!--由于模板继承{ %endblock%}出现问题暂时这样吧-->
+	<h1 class="text-center">UPaintIGuess</h1>
+    <div class="navbar navbar-inverse">
+      <div class="navbar-inner nav-collapse" style="height: auto;">
+        <ul class="nav">
+          <li class="active"><a href="/">Home</a></li>
+          <li><a href="{{url_for('login')}}">User Login</a></li>
+          <li><a href="/logout">User Exit</a></li>
+		  <li><a href="/userinfo">User Information</a></li>
+		  <li><a href="/editinfo">Edit Information</a></li>
+		  <li><a href="/changepasswd">Change Password</a></li>
+        </ul>
+      </div>
+    </div>
+	<div id="login" class="container span8 offset4">
+		<h1 class="page-header">Welcome to UPaintIGuess</h1>
+		<form class="form-horizontal" action="{{ url_for('login') }}" method="post">
+			<div class="control-group">
+			    <label class="control-label" >Username:</label>
+				<div class="controls">
+				<input type="text" name="username" placeholder="Username">
+				</div>
+			</div>
+			<div class="control-group">
+			    <label class="control-label" for="inputPassword">Password:</label>
+				<div class="controls">
+				<input type="password" name="password" placeholder="password">
+				</div>
+			</div>
+			<div class="control-group">
+				<div class="controls">
+				<label class="checkbox">
+				<input type="checkbox">keep status</label>
+				<button type="submit" class="btn btn-large btn-primary">Login</button>
+				<a href="{{url_for('register')}}">don't have an account,please click here to register</a>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div id="footer" class="container span12">
+	</div>
+</body>
