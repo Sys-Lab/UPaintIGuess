@@ -30,7 +30,7 @@ def generate_captcha():
     height = 40
     width = 120
     image = Image.new('RGB', (width, height))
-    font = ImageFont.truetype('resources/fonts/arial.ttf', 28)
+    font = ImageFont.truetype('static/fonts/arial.ttf', 28)
     draw = ImageDraw.Draw(image)
     # Fill the background with random color
     for x in range(width):

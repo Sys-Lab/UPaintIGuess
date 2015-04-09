@@ -48,3 +48,8 @@ except ImportError:
     pass
 
 configs = toDict(configs)
+
+# For flask app
+SECRET_KEY = configs.session.secret
+DEBUG = True
+TESTING = True
