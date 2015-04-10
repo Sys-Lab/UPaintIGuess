@@ -169,11 +169,11 @@ def api_register():
         5. captcha
     '''
     try:
-        username = request['username'].strip()
-        email = request['email'].strip().lower()
-        password = request['password'].strip()
-        gender = request['gender']
-        captcha = request['captcha'].strip()
+        username = request.form['username'].strip()
+        email = request.form['email'].strip().lower()
+        password = request.form['password'].strip()
+        gender = request.form['gender']
+        captcha = request.form['captcha'].strip()
         cap_answer = session['captcha']
         if captcha.lower() != cap_answer.lower():
             raise APIError('Wrong captcha.', 403)
@@ -213,9 +213,9 @@ def api_register():
 @app.route('/api/auth', methods=['POST'])
 def api_authenticate():
     try:
-        email = request['email'].strip().lower()
-        password = request['password'].strip()
-        remember = request['remember'].strip()
+        email = request.form['email'].strip().lower()
+        password = request.form['password'].strip()
+        remember = request.form['remember'].strip()
         remember = int(remember)
         user = User.query.filter_by(t_emailaddr=email).first()
         if not user:

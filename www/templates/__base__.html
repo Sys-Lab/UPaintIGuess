@@ -23,11 +23,15 @@
       <div class="navbar-inner nav-collapse" style="height: auto;">
         <ul class="nav">
           <li class="active"><a href="/">Home</a></li>
-          <li><a href="{{url_for('login')}}">User Login</a></li>
+          {% if user %}
+		      <li><a href="/userinfo">User Info</a></li>
+		      <li><a href="/editinfo">Edit Information</a></li>
+		      <li><a href="/changepasswd">Change Password</a></li>
           <li><a href="/logout">User Exit</a></li>
-		  <li><a href="/userinfo">User Information</a></li>
-		  <li><a href="/editinfo">Edit Information</a></li>
-		  <li><a href="/changepasswd">Change Password</a></li>
+          {% else %}
+          <li><a href="{{url_for('login')}}">User Login</a></li>
+          <li><a href="{{url_for('register')}}">Register</a></li>
+          {% endif %}
         </ul>
       </div>
     </div>
