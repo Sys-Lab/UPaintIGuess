@@ -6,12 +6,12 @@
 		<form class="form-horizontal" action="/api/register" method="post">
 			<label class="control-label" >Username:</label>
 				<div class="controls">
-				<input type="text" name="username" placeholder="Username">
+				<input type="text" name="username" placeholder="username">
 				</div>
 			<div class="control-group">
 			    <label class="control-label" for="inputPassword">Password:</label>
 				<div class="controls">
-				<input type="password" name="password" placeholder="password">
+                    <input type="password"  id="password_id" name="password" placeholder="password" onkeydown="encodePWD()"><!--注册后会有dump class错误，暂时未解决-->
 				</div>
 			<div class="control-group">
 			    <label class="control-label" >Email:</label>
@@ -34,11 +34,23 @@
 			
 			<div class="control-group">
 				<div class="controls">
-				<button type="submit" class="btn btn-large btn-primary">Register</button>
+				<button type="submit" onclick="doSubmit();" class="btn btn-large btn-primary">Register</button>
 				</div>
 			</div>
 		</form>
 	</div>
 	<div id="footer" class="container span12">
 	</div>
+
+    <!--对密码做md5处理-->
+    <script>
+       // alert($.md5('conan'));
+        function doSubmit() {
+                        var raw_pwd=$("#password_id")[0].value;
+                       //alert(raw_pwd);
+                        var md5_pwd=$.md5(raw_pwd);
+                       // alert(md5_pwd);
+                        $("#password_id").val(md5_pwd);//重置password框属性值
+        }
+    </script>
 {% endblock %}
