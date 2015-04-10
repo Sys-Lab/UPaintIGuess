@@ -16,6 +16,11 @@ import time
 _RE_MD5 = re.compile(r'^[0-9a-fA-F]{32}$')
 _RE_EMAIL = re.compile(r'^[\w\.\-]+@[\w\-]+(\.[\w\-]+){1,4}$')
 _COOKIE_KEY = config.configs.session.secret
+# This list includes routes that allow logined users only
+login_requre_list = ['/room', '/main', '/logout', '/userinfo', '/editinfo',
+                     '/changepasswd', '/contribute']
+# Only visitors can login or register
+visitor_only_list = ['/login', '/register']
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -73,19 +78,29 @@ def handle_api_error(error):
     return response
 
 
-# @app.before_request
+# This is a interceptor which will validate your login state.
+# If you are requesting /room or /main with visitor identity,
+# this function will redirect you to the homepage
+@app.before_request
 def validate_login():
-    if re.search('[room|main]', request.path):
-        try:
-            user = User.query.filter_by(t_emailaddr=session['email']).first()
-            if user:
-                if user.t_password == session['password']:
-                    return
-        except KeyError:
-            pass
-        return redirect(url_for('.index'))
+    # For visitors:
+    user = None
+    try:
+        user = User.query.filter_by(t_emailaddr=session['email']).first()
+    except KeyError:
+        pass
+    finally:
+        if not user:
+            for i in login_requre_list:
+                if i == request.path:
+                    return redirect(url_for('.index'))
+        else:
+            for i in visitor_only_list:
+                if i == request.path:
+                    return redirect(url_for('.index'))
 
 
+# Front-end pages:
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index_page.html', user=get_current_user())
@@ -111,10 +126,27 @@ def login():
     return render_template('login.html')
 
 
+@app.route('/contribute', methods=['GET'])
 def contribute_words():
     return render_template('words.html', user=get_current_user())
 
 
+@app.route('/userinfo', methods=['GET'])
+def display_user_info():
+    return render_template('userinfo.html', user=get_current_user())
+
+
+@app.route('/editinfo', methods=['GET'])
+def edit_user_info():
+    return render_template('editinfo.html', user=get_current_user())
+
+
+@app.route('/changepasswd', methods=['GET'])
+def change_password():
+    return render_template('password.html', user=get_current_user())
+
+
+# APIs
 @app.route('/api/captcha', methods=['GET'])
 def get_captcha():
     cap, img = captcha.generate_captcha()
@@ -212,6 +244,7 @@ def api_logout():
     return redirect(url_for('/'))
 
 
+# Socket IO apis
 @socketio.on('join')
 def on_join(data):
     global players

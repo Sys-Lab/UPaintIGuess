@@ -11,6 +11,18 @@ Directory structure
 ..../static/images	Images
 ..../templates		Jinja2 HTML templates
 </pre>
+Virtual environment
+===================
+<pre>
+virtualenv venv
+. venv/bin/activate
+# Here to install all dependicies with only one command
+pip install -r requirements.txt
+</pre>
+For Windows users please use following command to activate your environment:
+<pre>
+venv\scripts\activate
+</pre>
 Author:
 =======
 ZXrobin <br />
