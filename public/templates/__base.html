@@ -1,0 +1,80 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    {% block meta %}<!-- Added block meta info -->{% endblock %}
+    <title>{% block title %} ? {% endblock %} - Awesome Python Webapp</title>
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <link rel="stylesheet" href="/resources/css/uikit.min.css">
+    <link rel="stylesheet" href="/resources/css/uikit.gradient.css">
+    <script src="/resources/js/jquery.min.js"></script>
+    <script src="/resources/js/md5.js"></script>
+    <script src="/resources/js/uikit.min.js"></script>
+    <script src="/resources/js/sticky.min.js"></script>
+    <script src="/resources/js/vue.min.js"></script>
+    <script src="/resources/js/transwarp.js"></script>
+    {% block beforehead %}<!-- before head  -->{% endblock %}
+
+</head>
+<body>
+    <nav class="uk-navbar uk-navbar-attached uk-margin-bottom">
+        <div class="uk-container uk-container-center">
+            <a href="/" class="uk-navbar-brand">Atomsquare</a>
+            <ul class="uk-navbar-nav">
+                <li data-url="blogs"><a href="/"><i class="uk-icon-home"></i> U-Center</a></li>
+                <li><a target="_blank" href="http://www.atomsquare.com/"><i class="uk-icon-home"></i> Homepage</a></li>
+                <li><a target="_blank" href="https://github.com/excelle08"><i class="uk-icon-code"></i> Source</a></li>
+            </ul>
+            <div class="uk-navbar-flip">
+                <ul class="uk-navbar-nav">
+                {% if user %}
+                    <li class="uk-parent" data-uk-dropdown>
+                        <a href="#0"><i class="uk-icon-user"></i> {{ user.t_username }}</a>
+                        <div class="uk-dropdown uk-dropdown-navbar">
+                            <ul class="uk-nav uk-nav-navbar">
+                                {% if user.t_privilege %}
+                                <li><a href="/admincp"><i class="uk-icon-cog"></i> Manage</a></li>
+                                {% endif %}
+                                <li><a href="/signout"><i class="uk-icon-sign-out"></i> Log Out</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                {% else %}
+                    <li><a href="/signin"><i class="uk-icon-sign-in"></i> Sign In</a></li>
+                    <li><a href="/register"><i class="uk-icon-edit"></i> Register</a></li>
+                {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="uk-container uk-container-center">
+        <div class="uk-grid">
+            <!-- content -->
+            {% block content %}
+
+            {% endblock %}
+            <!-- // content -->
+        </div>
+    </div>
+
+    <div class="uk-margin-large-top" style="background-color:#eee; border-top:1px solid #ccc;">
+        <div class="uk-container uk-container-center uk-text-center">
+            <div class="uk-panel uk-margin-top uk-margin-bottom">
+                <p>
+                    <a target="_blank" href="http://t.qq.com/gqyz01sw" class="uk-icon-button uk-icon-tencent-weibo"></a>
+                    <a target="_blank" href="https://github.com/excelle08" class="uk-icon-button uk-icon-github"></a>
+                    <a target="_blank" href="https://twitter.com/xtremefuture000" class="uk-icon-button uk-icon-twitter"></a>
+                </p>
+                <p>Powered by <a href="http://www.atomsquare.com">Atomsquare User Center</a>. Copyright &copy; 2014.
+                <p><a href="http://www.atomsquare.com/" target="_blank">Atomsquare</a>. All rights reserved.</p>
+                <a target="_blank" href="http://www.w3.org/TR/html5/"><i class="uk-icon-html5" style="font-size:64px; color: #444;"></i></a>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

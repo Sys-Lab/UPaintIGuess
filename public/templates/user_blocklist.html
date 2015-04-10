@@ -1,0 +1,38 @@
+{% extends '__base.html' %}
+
+{% block title %}Messages{% endblock %}
+
+{% block beforehead %}
+
+<script type="text/javascript">
+
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="uk-width-3-10">
+	<div class="uk-nav-side uk-nav" data-uk-nav="">
+		<li class="uk-nav-header">User Settings</li>
+		<li><a href='/user/basicinfo'>Basic Information</a></li>
+		<li><a href='/user/avatar'>Change your avatar</a></li>
+		<li><a href='/user/ext'>Complete your profile</a></li>
+		<li class="uk-nav-divider"></li>
+		<li class="uk-nav-header">Relationships</li>
+		<li><a href="/peer/messages">Messages</a></li>
+		<li><a href="/peer/friends">Friends</a></li>
+		<li class="uk-active"><a href="/peer/blocked">Blocked</a></li>
+		<li class="uk-nav-divider"></li>
+		<li class="uk-nav-header">Security</li>
+		<li><a href="/user/password">Change your password</a></li>
+		<li><a href="/signout">Logout</a></li>
+	</div>
+</div>
+
+<div class="uk-width-7-10" id="div-msg">
+	
+
+
+</div>
+{% endblock %}
