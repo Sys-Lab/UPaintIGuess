@@ -118,7 +118,8 @@ def game():
 
 @app.route('/register', methods=['GET'])
 def register():
-    return render_template('register.html')
+    cap, img=captcha.generate_captcha()
+    return render_template('register.html',img=img)# here need to translate the img string to image
 
 
 @app.route('/login', methods=['GET'])

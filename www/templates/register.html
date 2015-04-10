@@ -1,1 +1,45 @@
 {% extends '__base__.html' %}
+
+{% block content %}
+	<div id="register" class="container span8 offset4">
+		<h1 class="page-header">Welcome to UPaintIGuess</h1>
+		<form class="form-horizontal" action="{{ url_for('login') }}" method="post">
+			<label class="control-label" >Username:</label>
+				<div class="controls">
+				<input type="text" name="username" placeholder="Username">
+				</div>
+			<div class="control-group">
+			    <label class="control-label" for="inputPassword">Password:</label>
+				<div class="controls">
+				<input type="password" name="password" placeholder="password">
+				</div>
+			<div class="control-group">
+			    <label class="control-label" >Email:</label>
+				<div class="controls">
+				<input type="text" name="email" placeholder="someone@qq.com">
+				</div>
+		
+			<div class="control-group">
+			    <label class="control-label" >Gender:</label>
+				<div class="controls">
+				<input type="text" name="gender" placeholder="0 for girls and 1 for boys">
+				</div>
+			<div class="control-group">
+			    <label class="control-label" >Captcha:</label>
+				<div class="controls">
+				<input type="text" name="captcha" placeholder="input the identifying code you see">
+				</div>
+			</div>
+			
+			<img src="{{ img }}">	<!-此处需转换流对象为图片-->
+
+			<div class="control-group">
+				<div class="controls">
+				<button type="submit" class="btn btn-large btn-primary">Register</button>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div id="footer" class="container span12">
+	</div>
+{% endblock %}
