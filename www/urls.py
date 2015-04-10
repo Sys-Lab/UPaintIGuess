@@ -110,7 +110,6 @@ def index():
 def select_room():
     return render_template('rooms.html', user=get_current_user())
 
-
 @app.route('/main', methods=['GET'])
 def game():
     return render_template('main.html', user=get_current_user())
@@ -118,8 +117,9 @@ def game():
 
 @app.route('/register', methods=['GET'])
 def register():
-    cap, img=captcha.generate_captcha()
-    return render_template('register.html',img=img)# here need to translate the img string to image
+
+    cap, img_string=captcha.generate_captcha()
+    return render_template('register.html')# here need to translate the img string to image
 
 
 @app.route('/login', methods=['GET'])
@@ -170,11 +170,11 @@ def api_register():
         5. captcha
     '''
     try:
-        username = request['username'].strip()
-        email = request['email'].strip().lower()
-        password = request['password'].strip()
-        gender = request['gender']
-        captcha = request['captcha'].strip()
+        username = request.form['username'].strip()
+        email = request.form['email'].strip().lower()
+        password = request.form['password'].strip()
+        gender = request.form['gender']
+        captcha = request.form['captcha'].strip()
         cap_answer = session['captcha']
         if captcha.lower() != cap_answer.lower():
             raise APIError('Wrong captcha.', 403)
@@ -214,9 +214,9 @@ def api_register():
 @app.route('/api/auth', methods=['POST'])
 def api_authenticate():
     try:
-        email = request['email'].strip().lower()
-        password = request['password'].strip()
-        remember = request['remember'].strip()
+        email = request.form['email'].strip().lower()
+        password = request.form['password'].strip()
+        remember = request.form['remember'].strip()
         remember = int(remember)
         user = User.query.filter_by(t_emailaddr=email).first()
         if not user:
