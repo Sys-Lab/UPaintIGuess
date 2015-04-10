@@ -1,6 +1,6 @@
 __author__ = 'Excelle'
 
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request
 from flask import jsonify, session, redirect, url_for, make_response
 from config import config
 from api import APIError, Player, dump_class
@@ -73,9 +73,9 @@ def handle_api_error(error):
     return response
 
 
-@app.before_request
+# @app.before_request
 def validate_login():
-    if request.path != '/' and request.path != '/api/captcha':
+    if re.search('[room|main]', request.path):
         try:
             user = User.query.filter_by(t_emailaddr=session['email']).first()
             if user:
@@ -99,6 +99,16 @@ def select_room():
 @app.route('/main', methods=['GET'])
 def game():
     return render_template('main.html', user=get_current_user())
+
+
+@app.route('/register', methods=['GET'])
+def register():
+    return render_template('register.html')
+
+
+@app.route('/login', methods=['GET'])
+def login():
+    return render_template('login.html')
 
 
 def contribute_words():
@@ -318,7 +328,7 @@ if __name__ == '__main__':
     db_port = config.configs.db.port
 
     db_connection_str = 'mysql+mysqlconnector://' + db_user + ':' + db_pass + '@' + db_host + ':' + \
-                    str(db_port) + '/' + db_name
+                        str(db_port) + '/' + db_name
     app.config['SQLALCHEMY_DATABASE_URI'] = db_connection_str
     app.config.from_object('config.config')
     app.run()
