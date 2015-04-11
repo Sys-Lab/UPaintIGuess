@@ -1,5 +1,10 @@
 __author__ = 'Excelle'
 
+import captcha
+import re
+import time
+import hashlib
+import random
 from flask import Flask, render_template, request
 from flask import jsonify, session, redirect, url_for, make_response
 from config import config
@@ -9,9 +14,6 @@ from flask.ext.socketio import join_room, leave_room
 from flask.ext.sqlalchemy import SQLAlchemy
 from random import randrange
 
-import captcha
-import re
-import time
 
 _RE_MD5 = re.compile(r'^[0-9a-fA-F]{32}$')
 _RE_EMAIL = re.compile(r'^[\w\.\-]+@[\w\-]+(\.[\w\-]+){1,4}$')
@@ -110,6 +112,7 @@ def index():
 def select_room():
     return render_template('rooms.html', user=get_current_user())
 
+
 @app.route('/main', methods=['GET'])
 def game():
     return render_template('main.html', user=get_current_user())
@@ -117,9 +120,8 @@ def game():
 
 @app.route('/register', methods=['GET'])
 def register():
-
-    cap, img_string=captcha.generate_captcha()
-    return render_template('register.html')# here need to translate the img string to image
+    cap, img_string = captcha.generate_captcha()
+    return render_template('register.html')
 
 
 @app.route('/login', methods=['GET'])
@@ -134,12 +136,20 @@ def contribute_words():
 
 @app.route('/userinfo', methods=['GET'])
 def display_user_info():
-    return render_template('userinfo.html', user=get_current_user())
+    u = get_current_user()
+    ext = None
+    if u:
+        ext = ExtInfo.query.filter_by(t_uid=u.t_uid).first()
+    return render_template('userinfo.html', user=u, usrext=ext)
 
 
 @app.route('/editinfo', methods=['GET'])
 def edit_user_info():
-    return render_template('editinfo.html', user=get_current_user())
+    u = get_current_user()
+    ext = None
+    if u:
+        ext = ExtInfo.query.filter_by(t_uid=u.t_uid).first()
+    return render_template('editinfo.html', user=u, usrext=ext)
 
 
 @app.route('/changepasswd', methods=['GET'])
@@ -206,7 +216,8 @@ def api_register():
         session['username'] = u.t_username
         session['password'] = u.t_password
         request.user = u
-        return dump_class(u)
+        u.password = '******'
+        return u
     except KeyError, ex:
         raise APIError(ex.message, 500)
 
@@ -230,7 +241,101 @@ def api_authenticate():
         session['password'] = user.t_password
         request.user = user
         user.t_password = '******'
-        return dump_class(user)
+        return user
+    except KeyError, e:
+        raise APIError(e.message, 500)
+
+
+@app.route('/api/user/passwd', methods=['POST'])
+def api_change_passwd():
+    try:
+        prev_password = request.form['prev_passwd'].strip().lower()
+        new_password = request.form['new_passwd'].strip().lower()
+        captcha = request.form['captcha'].strip().lower()
+        cap_answer = session['captcha'].lower()
+        if not captcha == cap_answer:
+            raise APIError('Wrong captcha!', 400)
+        user = request.user
+        if not _RE_MD5.match(prev_password) or not _RE_MD5.match(new_password):
+            raise APIError('Invalid password format')
+        if not user.t_password == prev_password:
+            raise APIError('The previous password is wrong.')
+        user.t_password = new_password
+        api_logout()
+        return dict()
+    except KeyError, e:
+        raise APIError(e.message, 500)
+    except AttributeError, ex:
+        raise APIError(ex.message, 500)
+
+
+@app.route('/api/user/<emailaddr>', methods=['GET'])
+def api_show_userinfo(emailaddr):
+    try:
+        u = User.query.filter_by(t_emailaddr=emailaddr).first()
+        if not u:
+            u = request.user
+        u_ext = ExtInfo.query.filter_by(t_uid=u.t_uid).first()
+        user_dict = {'uid': t_uid, 'username': u.t_username, 'email': u.t_emailaddr,
+                     'gender': u.t_gender, 'isadmin': u.t_privilege,
+                     'credits': u.t_credits, 'created_at': u.t_created_at,
+                     'avatar': u_ext.t_avatar, 'motto': u_ext.t_motto,
+                     'qq': u_ext.t_qqid, 'cellphone': u_ext.t_cellphone,
+                     'zipcode': u_ext.t_zipcode, 'website': u_ext.t_website,
+                     'birthday': u_ext.t_birthday}
+        return user_dict
+    except KeyError, e:
+        raise APIError(e.message, 500)
+    except AttributeError, ex:
+        raise APIError(ex.message, 500)
+
+
+@app.route('/api/user/edit', methods=['POST'])
+def api_edit_info():
+    try:
+        user = request.user
+        ext = ExtInfo.query.filter_by(t_uid=user.t_uid).first()
+        username = request.form['username'].strip()
+        gender = request.form['gender'].strip()
+        avatar = request.form['avatar'].strip()
+        motto = request.form['motto'].strip()
+        qq = request.form['qq'].strip()
+        cellphone = request.form['cellphone'].strip()
+        zipcode = request.form['zipcode'].strip()
+        website = request.form['website'].strip()
+        birthday = request.form['birthday'].strip()
+        user.t_username = username
+        user.t_gender = gender
+        ext.t_avatar = avatar
+        ext.t_motto = motto
+        ext.t_qqid = qq
+        ext.t_cellphone = cellphone
+        ext.t_zipcode = zipcode
+        ext.t_website = website
+        ext.t_birthday = birthday
+        user.update()
+        ext.update()
+        return dict(user=user, usrext=ext)
+    except Exception, e:
+        raise APIError(e.message, 500)
+
+
+@app.route('/api/avatar', methods=['POST'])
+def api_upload_avatar():
+    try:
+        img_file = request.files['img']
+        mime, extension = img_file.mimetype.split('/')
+        if not mime == 'image':
+            raise APIError('You can only upload an image.')
+        user = get_current_user()
+        ext = ExtInfo.query.filter_by(t_uid=user.t_uid).first()
+        filename_seed = str(time.time())
+        filename = hashlib.md5(filename_seed) + '.' + extension
+        path = 'static/images/uploads/' + filename
+        ext.t_avatar = path
+        ext.update()
+        img_file.save(path)
+        return dict(user=user, usrext=ext)
     except KeyError, e:
         raise APIError(e.message, 500)
 
