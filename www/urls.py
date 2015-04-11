@@ -110,7 +110,6 @@ def index():
 def select_room():
     return render_template('rooms.html', user=get_current_user())
 
-
 @app.route('/main', methods=['GET'])
 def game():
     return render_template('main.html', user=get_current_user())
@@ -118,7 +117,9 @@ def game():
 
 @app.route('/register', methods=['GET'])
 def register():
-    return render_template('register.html')
+
+    cap, img_string=captcha.generate_captcha()
+    return render_template('register.html')# here need to translate the img string to image
 
 
 @app.route('/login', methods=['GET'])

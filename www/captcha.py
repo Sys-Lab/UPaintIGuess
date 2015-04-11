@@ -27,7 +27,7 @@ def rndcolor_background():
 
 def generate_captcha():
     global params
-    height = 40
+    height = 34
     width = 120
     image = Image.new('RGB', (width, height))
     font = ImageFont.truetype('static/fonts/arial.ttf', 28)
