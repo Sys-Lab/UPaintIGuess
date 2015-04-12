@@ -82,6 +82,8 @@ def get_current_user():
         user = User.query.filter_by(t_emailaddr=session['email']).first()
     except AttributeError:
         pass
+    except KeyError:
+        pass
     print user
     return user
 
@@ -243,8 +245,15 @@ def api_authenticate():
     try:
         email = request.form['email'].strip().lower()
         password = request.form['password'].strip()
-        remember = request.form['remember'].strip()
-        remember = int(remember)
+        try:
+            remember = request.form['remember'].strip()
+            if isinstance(remember, str):
+                if remember == 'on':
+                    remember = 1
+            else:
+                remember = int(remember)
+        except KeyError:
+            remember = 0
         user = User.query.filter_by(t_emailaddr=email).first()
         if not user:
             raise APIError('User does not exist', 400)
@@ -255,7 +264,7 @@ def api_authenticate():
         session['email'] = user.t_emailaddr
         session['username'] = user.t_username
         session['password'] = user.t_password
-        return jsonify(username=u.t_username, emailaddr=u.t_emailaddr)
+        return jsonify(username=user.t_username, emailaddr=user.t_emailaddr)
     except KeyError, e:
         raise APIError(e.message, 500)
 
@@ -290,7 +299,7 @@ def api_show_userinfo(emailaddr):
         if not u:
             u = get_current_user()
         u_ext = ExtInfo.query.filter_by(t_uid=u.t_uid).first()
-        user_dict = {'uid': t_uid, 'username': u.t_username, 'email': u.t_emailaddr,
+        user_dict = {'uid': u.t_uid, 'username': u.t_username, 'email': u.t_emailaddr,
                      'gender': u.t_gender, 'isadmin': u.t_privilege,
                      'credits': u.t_credits, 'created_at': u.t_created_at,
                      'avatar': u_ext.t_avatar, 'motto': u_ext.t_motto,
