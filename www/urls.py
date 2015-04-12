@@ -5,8 +5,8 @@ import re
 import time
 import hashlib
 import random
-from flask import Flask, render_template, request
-from flask import jsonify, session, redirect, url_for, make_response
+from flask import Flask, render_template, request, jsonify
+from flask import session, redirect, url_for, make_response
 from config import config
 from api import APIError, Player, dump_class
 from flask.ext.socketio import SocketIO, send, emit
@@ -41,6 +41,12 @@ class User(db.Model):
     t_credits = db.Column(db.Integer, default=10)
     t_created_at = db.Column(db.Float, default=time.time())
 
+    def getDict(self):
+        return dict(t_uid=self.t_uid, t_username=self.t_username,
+                    t_password=self.t_password, t_emailaddr=self.t_emailaddr,
+                    t_gender=self.t_gender, t_privilege=self.t_gender,
+                    t_credits=self.t_gender, t_created_at=self.t_created_at)
+
 
 class ExtInfo(db.Model):
     __tablename__ = 'a_usrext'
@@ -53,6 +59,12 @@ class ExtInfo(db.Model):
     t_website = db.Column(db.String)
     t_birthday = db.Column(db.Float)
 
+    def getDict(self):
+        return dict(t_uid=self.t_uid, t_avatar=self.t_avatar,
+                    t_motto=self.t_motto, t_qqid=self.t_qqid,
+                    t_cellphone=self.t_cellphone, t_zipcode=self.t_zipcode,
+                    t_website=self.t_website, t_birthday=self.t_birthday)
+
 
 class Word(db.Model):
     __tablename__ = 'a_words'
@@ -60,13 +72,17 @@ class Word(db.Model):
     t_word = db.Column(db.String(16))
     t_desc = db.Column(db.String(24))
 
+    def getDict(self):
+        return dict(t_id=self.t_id, t_word=self.t_word, t_desc=self.t_desc)
+
 
 def get_current_user():
     user = None
     try:
-        user = request.user
+        user = User.query.filter_by(t_emailaddr=session['email']).first()
     except AttributeError:
         pass
+    print user
     return user
 
 
@@ -204,20 +220,20 @@ def api_register():
         u.t_emailaddr = email
         u.t_password = password
         u.t_gender = int(gender)
+        db.session.add(u)
+        db.session.commit()
         ext = ExtInfo()
         ext.t_uid = u.t_uid
         if u.t_gender:
             ext.t_avatar = '/static/images/avatar_default_boy.png'
         else:
             ext.t_avatar = '/static/images/avatar_default_girl.png'
-        db.session.add(u)
+        db.session.add(ext)
         db.session.commit()
         session['email'] = u.t_emailaddr
         session['username'] = u.t_username
         session['password'] = u.t_password
-        request.user = u
-        u.password = '******'
-        return u
+        return jsonify(username=u.t_username, emailaddr=u.t_emailaddr)
     except KeyError, ex:
         raise APIError(ex.message, 500)
 
@@ -239,9 +255,7 @@ def api_authenticate():
         session['email'] = user.t_emailaddr
         session['username'] = user.t_username
         session['password'] = user.t_password
-        request.user = user
-        user.t_password = '******'
-        return user
+        return jsonify(username=u.t_username, emailaddr=u.t_emailaddr)
     except KeyError, e:
         raise APIError(e.message, 500)
 
@@ -255,14 +269,14 @@ def api_change_passwd():
         cap_answer = session['captcha'].lower()
         if not captcha == cap_answer:
             raise APIError('Wrong captcha!', 400)
-        user = request.user
+        user = get_current_user()
         if not _RE_MD5.match(prev_password) or not _RE_MD5.match(new_password):
             raise APIError('Invalid password format')
         if not user.t_password == prev_password:
             raise APIError('The previous password is wrong.')
         user.t_password = new_password
         api_logout()
-        return dict()
+        return ''
     except KeyError, e:
         raise APIError(e.message, 500)
     except AttributeError, ex:
@@ -274,7 +288,7 @@ def api_show_userinfo(emailaddr):
     try:
         u = User.query.filter_by(t_emailaddr=emailaddr).first()
         if not u:
-            u = request.user
+            u = get_current_user()
         u_ext = ExtInfo.query.filter_by(t_uid=u.t_uid).first()
         user_dict = {'uid': t_uid, 'username': u.t_username, 'email': u.t_emailaddr,
                      'gender': u.t_gender, 'isadmin': u.t_privilege,
@@ -283,7 +297,7 @@ def api_show_userinfo(emailaddr):
                      'qq': u_ext.t_qqid, 'cellphone': u_ext.t_cellphone,
                      'zipcode': u_ext.t_zipcode, 'website': u_ext.t_website,
                      'birthday': u_ext.t_birthday}
-        return user_dict
+        return jsonify(user_dict)
     except KeyError, e:
         raise APIError(e.message, 500)
     except AttributeError, ex:
@@ -315,7 +329,7 @@ def api_edit_info():
         ext.t_birthday = birthday
         user.update()
         ext.update()
-        return dict(user=user, usrext=ext)
+        return jsonify(user=user, usrext=ext)
     except Exception, e:
         raise APIError(e.message, 500)
 
@@ -335,7 +349,7 @@ def api_upload_avatar():
         ext.t_avatar = path
         ext.update()
         img_file.save(path)
-        return dict(user=user, usrext=ext)
+        return jsonify(user=user, usrext=ext)
     except KeyError, e:
         raise APIError(e.message, 500)
 
@@ -346,7 +360,6 @@ def api_logout():
     session.pop('username', None)
     session.pop('email', None)
     session.pop('password', None)
-    request.user = None
     return redirect(url_for('/'))
 
 
