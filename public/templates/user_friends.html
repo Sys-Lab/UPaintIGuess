@@ -1,0 +1,243 @@
+{% extends '__base.html' %}
+
+{% block title %}Friends{% endblock %}
+
+{% block beforehead %}
+
+
+
+<script type="text/javascript">
+
+    function validateEmail(email) {
+        var re = /^[a-z0-9\.\-\_]+\@[a-z0-9\-\_]+(\.[a-z0-9\-\_]+){1,4}$/;
+        return re.test(email.toLowerCase());
+    }
+
+    function initVM(data) {
+        $('#div-').show();
+        var vm = new Vue({
+            el: '#div-friends',
+            data: {
+                friends: data.friends,
+                page: data.page
+            },
+            methods: {
+                previous: function () {
+                    gotoPage(this.page.page_index - 1);
+                },
+                next: function () {
+                    gotoPage(this.page.page_index + 1);
+                },
+                view_info: function (user) {
+                    location.assign('/user/' + user.t_uid)
+                },
+                send_message: function (user) {
+                    var modal = $.UIkit.modal("#new_msg");
+                    modal.show();
+                    $('#msg_target').val(user.t_emailaddr);
+                },
+                remove: function(user) {
+                    showConfirm('Confirm', 'Are you sure to remove?', function () {
+                        postApi('/api/friends/del', {email: user.t_emailaddr}, function (err, r) {
+                            if (err) {
+                                return showError(err);
+                            }
+                        location.reload();
+                    });
+                });
+                }
+        }
+    });
+}
+
+$(function(){                 //what does this code mean?
+        var vm = new Vue({
+            el: '#new_message',
+            data: {
+                msg_to: '',
+                msg_title: '',
+                msg_content: '',
+            },
+            methods: {
+                submit: function(event){
+                    event.preventDefault();
+                    this.msg_to = $('#msg_target').val()
+                    if(!this.msg_to.trim()){
+                        return showError('Please enter TO email address.');
+                    }
+                    if(!validateEmail(this.msg_to.trim())){
+                        return showError('Invalid email address.');
+                    }
+                    if(!this.msg_title){
+                        return showError('Please enter a subject');
+                    }
+                    if(!this.msg_content){
+                        return showError('Please enter content.');
+                    }
+                    startLoading();
+                    postApi('/api/message/send', {
+                        to: this.msg_to.trim().toLowerCase(),
+                        subject: this.msg_title.trim(),
+                        content: this.msg_content,
+
+                    }, function(err, r){
+                        if(err){
+                            showError(err);
+                        }
+                        else{
+                            return location.reload();
+                        }
+                        stopLoading();
+                    });
+                }
+            }
+        });
+    });
+
+$(function(){                 //what does this code mean?
+        var vm = new Vue({
+            el: '#new_friend',
+            data: {
+                email: ''
+            },
+            methods: {
+                submit: function(event){
+                    event.preventDefault();
+                    if(!this.email.trim()){
+                        return showError('Please enter a email address.');
+                    }
+                    if(!validateEmail(this.email.trim())){
+                        return showError('Invalid email address.');
+                    }
+                    
+                    startLoading();
+                    postApi('/api/friends/add', {
+                        email: this.email.trim().toLowerCase(),
+
+                    }, function(err, r){
+                        if(err){
+                            showError(err);
+                        }
+                        else{
+                            return location.reload();
+                        }
+                        stopLoading();
+                    });
+                }
+            }
+        });
+    });
+
+$(function() {
+    getApi('/api/friends/get', function (err, results) {
+        if (err) {
+            return showError(err);
+        }
+        $('#div-loading').hide();
+        initVM(results);
+    });
+});
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="uk-width-3-10">
+	<div class="uk-nav-side uk-nav" data-uk-nav="">
+		<li class="uk-nav-header">User Settings</li>
+		<li><a href='/user/basicinfo'>Basic Information</a></li>
+		<li><a href='/user/avatar'>Change your avatar</a></li>
+		<li><a href='/user/ext'>Complete your profile</a></li>
+		<li class="uk-nav-divider"></li>
+		<li class="uk-nav-header">Relationships</li>
+		<li><a href="/peer/messages">Messages</a></li>
+		<li class="uk-active"><a href="/peer/friends">Friends</a></li>
+		<li><a href="/peer/blocked">Blocked</a></li>
+		<li class="uk-nav-divider"></li>
+		<li class="uk-nav-header">Security</li>
+		<li><a href="/user/password">Change your password</a></li>
+		<li><a href="/signout">Logout</a></li>
+	</div>
+</div>
+
+<div class="uk-width-7-10" id="div-friends">
+	<div class="uk-width-1-1 uk-margin-bottom">
+        <div class="uk-alert uk-alert-danger uk-hidden"></div>
+    </div>
+
+    <button class="uk-button uk-button-primary" data-uk-modal="{target: '#new_friend'}"><i class="uk-icon-plus"></i> Add friends</button>
+    <p></p>
+    <div id="new_friend" class="uk-modal uk-align-center uk-width-1-1" style="display: none; overflow-y: auto;">
+        <div class="uk-modal-dialog">
+            <div class='uk-alert uk-alert-danger uk-hidden'></div>
+            <form class="uk-form uk-form-horizontal" id="new_friend" v-on="submit: submit">
+                <div class="uk-form-row">
+                    <label class="uk-form-label">Email address: </label>
+                    <input type="text" id="email" placeholder="user@example.com" v-model="email" class="uk-width-1-1"/>
+                </div>
+                <div class="uk-form-row">
+                    <button type="submit" class="uk-button uk-button-primary"><i class="uk-icon-check"></i> Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="new_msg" class="uk-modal uk-align-center uk-width-1-1" style="display: none; overflow-y: auto;">
+        <div class="uk-modal-dialog">
+            <div class='uk-alert uk-alert-danger uk-hidden'></div>
+            <form class="uk-form uk-form-horizontal" id="new_message" v-on="submit: submit">
+                <div class="uk-form-row">
+                    <label class="uk-form-label">To: </label>
+                    <input type="text" id="msg_target" placeholder="user@example.com" v-model="msg_to" class="uk-width-1-1"/>
+                </div>
+                <div class="uk-form-row">
+                    <label class="uk-form-label">Subject: </label>
+                    <input type="text" placeholder="Title" v-model="msg_title" class="uk-width-1-1" />
+                </div>
+                <div class="uk-form-row">
+                    <label class="uk-form-label">Content: </label>
+                    <textarea v-model="msg_content" class="uk-width-1-1"></textarea>
+                </div>
+                <div class="uk-form-row">
+                    <button type="submit" class="uk-button uk-button-primary"><i class="uk-icon-check"></i> Send</button>
+                </div>
+            </form>
+        </div>
+        
+    </div>
+
+    <div class="uk-width-1-1">
+        <div v-repeat="user: friends">
+            <div class="uk-panel uk-panel-box">
+                <div class="uk-grid">
+                <div class="uk-width-1-6">
+                    <img class="uk-thumbnail" v-attr="src: user.t_avatar" height="64" width="64" />
+                </div>
+                <div class="uk-width-5-6">
+                    <h3 class="uk-article-title" style="font-size: 18px" v-text="user.t_username"><i class="uk-icon-male uk-icon-medium" v-if="user.t_gender"></i><i class="uk-icon-female uk-icon-medium" v-if="! user.t_gender"></i></h3>
+                    <p v-text="user.t_motto"></p>
+                    <a href="#0" v-on="click: view_info(user)"><i class="uk-icon-info-circle"> View info | </i></a>
+                    <a href="#0" v-on="click: send_message(user)"><i class="uk-icon-mail-forward"> Send message | </i></a>
+                    <a href="#0" v-on="click: remove(user)"><i class="uk-icon-trash-o"></i> Remove</a>
+                </div>
+                </div>
+            </div>
+             <br />
+        </div>
+        <br />
+
+
+        <div class="uk-width-1-1 uk-text-center">
+            <ul class="uk-pagination">
+                <li v-if="! page.has_previous" class="uk-disabled"><span><i class="uk-icon-angle-double-left"></i></span></li>
+                <li v-if="page.has_previous"><a v-on="click: previous()" href="#0"><i class="uk-icon-angle-double-left"></i></a></li>
+                <li class="uk-active"><span v-text="page.page_index"></span></li>
+                <li v-if="! page.has_next" class="uk-disabled"><span><i class="uk-icon-angle-double-right"></i></span></li>
+                <li v-if="page.has_next"><a v-on="click: next()" href="#0"><i class="uk-icon-angle-double-right"></i></a></li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

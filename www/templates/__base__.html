@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<!--Author: Conan-->
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block meta %}<!-- Add block info here -->{% endblock %}
+    <title>{% block title %} ? {% endblock %} - U-Paint-I-Guess</title>
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <link rel=stylesheet type=text/css href="{{url_for('static', filename='css/bootstrap.min.css')}}">
+    <link rel=stylesheet type=text/css href="{{url_for('static', filename='css/bootstrap-responsive.min.css')}}">
+    <link rel=stylesheet type=text/css href="{{url_for('static', filename='css/bootstrap-combined.min.css')}}">
+    <link rel=stylesheet type=text/css href="{{url_for('static', filename='css/login.css')}}">
+    <script type=text/javascript src="{{url_for('static', filename='js/jquery-1.10.1.min.js')}}"></script>
+    <script type=text/javascript src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
+    <script type=text/javascript src="{{url_for('static',filename='js/jquery-md5.js')}}"></script>
+    <script type=text/javascript src="{{url_for('static',filename='js/socket.io.js')}}"></script>
+    <script type=text/javascript src="{{url_for('static',filename='js/websocket.js')}}"></script>
+    <script type=text/javascript src="{{url_for('static',filename='js/timer.js')}}"></script>
+    <script type=text/javascript src="{{url_for('static',filename='js/paint.js')}}"></script>
+    <script type=text/javascript src="{{url_for('static',filename='js/chat.js')}}"></script>    
+    {% block beforehead %}<!-- Add some extra javascript or css before </head> -->{% endblock %}
+</head>
+<body>
+	<h1 class="text-center">UPaintIGuess</h1>
+    <div class="navbar navbar-inverse">
+      <div class="navbar-inner nav-collapse" style="height: auto;">
+        <ul class="nav">
+          <li class="active"><a href="/">Home</a></li>
+          <li><a href="{{url_for('login')}}">User Login</a></li>
+          <li><a href="/logout">User Exit</a></li>
+		  <li><a href="/userinfo">User Information</a></li>
+		  <li><a href="/editinfo">Edit Information</a></li>
+		  <li><a href="/changepasswd">Change Password</a></li>
+          <li><a href="/room">Room</a></li>
+        </ul>
+      </div>
+    </div>
+    <!-- content here-->
+    {% block content %}
+
+    {% endblock %}
+</body>
+</html>

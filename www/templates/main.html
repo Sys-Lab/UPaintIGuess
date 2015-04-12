@@ -1,0 +1,54 @@
+{% extends "__base__.html" %}
+
+{% block content %}
+
+<div class="fa">
+<h2 align="center" style="margin-top:15px">UPaintIGuess</h2>
+    <div class="top" id="top">
+       <div id="addcolor">
+        </div>
+        <div class="font" id="font">
+             Brush Width :
+            <input type="button" value="thin" style="width:50px" class="grea"/>  
+            <input type="button" value="medium"style="width:50px" />
+            <input type="button" value="thick" style="width:50px"/>
+        </div>
+        <div>
+             Eraser：
+            <input id="eraser" style="width:40px;font-size:14px;"type="button"  /><!--引入橡皮的图片资源-->
+        </div>
+         <div>
+             Clear:
+            <input id="clear" type="button"  style="width:40px;"/><!--引入清扫的图片资源-->
+        </div>
+    </div>
+       <div>
+             Ready:
+            <input id="ready" type="button"  style="width:40px;" onclick='websocket.send_ready()'/>
+        </div>
+        <div>
+             Leave:
+            <a href='/room' ><input type="button"  style="width:40px;" onclick='websocket.leave()'/></a>
+        </div>
+
+        <canvas style="margin-top: 10px;" id="canvas" width="740px" height="420px">Your current brower doesn't support for canvas label,please use other browers</canvas>
+
+    
+    <div class="countdown" id="countdown">
+    </div>
+
+    <div class="right">
+        <h3 align="center" style="margin-top:10px">Chatting Online</h3>
+        <div class="log" id="log"></div>
+        <input id="msg" class="msg" type="textbox"/> 
+        <button class="send" onClick="chat.send_Msg()">send</button>
+    </div>
+</div>
+<script type="text/javascript">
+websocket.init();
+websocket.join();
+paint.init();
+paint.toolsUnvisible();
+$('.send').hide();
+</script>
+{% endblock %}

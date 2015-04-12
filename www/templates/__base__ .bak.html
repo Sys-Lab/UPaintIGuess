@@ -1,0 +1,27 @@
+d<!doctype html>
+<html>
+<!--Author: Conan-->
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome to UPaintIGuess</title>
+<link rel=stylesheet type=text/css href="{{url_for('static', filename='css/bootstrap.min.css')}}">
+<link rel=stylesheet type=text/css href="{{url_for('static', filename='css/bootstrap-responsive.min.css')}}">
+<link rel=stylesheet type=text/css href="{{url_for('static', filename='css/bootstrap-combined.min.css')}}">
+<link rel=stylesheet type=text/css href="{{url_for('static', filename='css/login.css')}}">
+</head>
+
+<body>
+	<h1 class="text-center">UPaintIGuess</h1>
+	<div class="navbar navbar-inverse">
+      <div class="navbar-inner nav-collapse" style="height: auto;">
+        <ul class="nav">
+          <li class="active"><a href="/">Home</a></li>
+          <li><a href="/login">User Login</a></li>
+          <li><a href="/logout">User Exit</a></li>
+		  <li><a href="/userinfo">User Information</a></li>
+		  <li><a href="/editinfo">Edit Information</a></li>
+		  <li><a href="/changepasswd">Change Password</a></li>
+        </ul>
+      </div>
+    </div>
+</body>

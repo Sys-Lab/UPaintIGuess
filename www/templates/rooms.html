@@ -1,0 +1,13 @@
+{% extends "__base__.html" %}
+
+{% block content %}
+<div>
+    join_room：
+    <input id='join_room' type='text'/>
+    <a href='/main'><input  style="width:40px;font-size:14px;"type="button" onclick='websocket.join_room()' /></a>
+</div>
+<br/>
+<script>
+websocket.init();
+</script>
+{% endblock %}
