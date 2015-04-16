@@ -356,7 +356,7 @@ def api_upload_avatar():
         ext.t_avatar = path
         db.session.commit()
         img_file.save(path)
-        return jsonify(user=user, usrext=ext)
+        return jsonify(user=user.getDict(), usrext=ext.getDict())
     except KeyError, e:
         raise APIError(e.message, 500)
 
