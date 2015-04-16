@@ -1,4 +1,3 @@
-__author__ = 'Excelle'
 import json
 
 

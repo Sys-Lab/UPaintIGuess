@@ -1,5 +1,3 @@
-__author__ = 'Excelle'
-
 import captcha
 import re
 import time
@@ -284,7 +282,8 @@ def api_change_passwd():
         if not user.t_password == prev_password:
             raise APIError('The previous password is wrong.')
         user.t_password = new_password
-        api_logout()
+        db.session.commit()
+        cancel_session()
         return ''
     except KeyError, e:
         raise APIError(e.message, 500)
@@ -316,7 +315,7 @@ def api_show_userinfo(emailaddr):
 @app.route('/api/user/edit', methods=['POST'])
 def api_edit_info():
     try:
-        user = request.user
+        user = get_current_user()
         ext = ExtInfo.query.filter_by(t_uid=user.t_uid).first()
         username = request.form['username'].strip()
         gender = request.form['gender'].strip()
@@ -336,8 +335,7 @@ def api_edit_info():
         ext.t_zipcode = zipcode
         ext.t_website = website
         ext.t_birthday = birthday
-        user.update()
-        ext.update()
+        db.session.commit()
         return jsonify(user=user, usrext=ext)
     except Exception, e:
         raise APIError(e.message, 500)
@@ -353,23 +351,27 @@ def api_upload_avatar():
         user = get_current_user()
         ext = ExtInfo.query.filter_by(t_uid=user.t_uid).first()
         filename_seed = str(time.time())
-        filename = hashlib.md5(filename_seed) + '.' + extension
+        filename = hashlib.md5(filename_seed).hexdigest() + '.' + extension
         path = 'static/images/uploads/' + filename
         ext.t_avatar = path
-        ext.update()
+        db.session.commit()
         img_file.save(path)
         return jsonify(user=user, usrext=ext)
     except KeyError, e:
         raise APIError(e.message, 500)
 
 
-@app.route('/api/logout', methods=['GET'])
-def api_logout():
+def cancel_session():
     session.permanent = False
     session.pop('username', None)
     session.pop('email', None)
     session.pop('password', None)
-    return redirect(url_for('/'))
+
+
+@app.route('/logout', methods=['GET'])
+def api_logout():
+    cancel_session()
+    return redirect(url_for('.index'))
 
 
 # Socket IO apis
@@ -479,7 +481,7 @@ def check_out_player(player):
     # Get corresponding user object
     user = User.query.filter_by(t_emailaddr=player.email).first()
     user.t_credits += player.points
-    user.update()
+    db.session.commit()
 
 if __name__ == '__main__':
     db_user = config.configs.db.user

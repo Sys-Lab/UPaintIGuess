@@ -1,5 +1,3 @@
-__author__ = 'Excelle'
-
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import random
 try:
