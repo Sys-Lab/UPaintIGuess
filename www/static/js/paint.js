@@ -121,13 +121,13 @@
             this.$("eraser").onclick = function(e) {
                 t.isEraser = true;
                 t.canvas.style.cursor = "url(../../Tpl/public/img/x.cur) 6 15, auto";
-                t.$("eraser").className = "grea";
+                t.$("eraser").className='btn btn-primary';
             };
         },
         //add start
         //设置顶端工具栏可见
         toolsVisible:function(){
-            this.tools.style.visibility="visiable";
+            //this.tools.style.visibility="visiable";
             // this.tools.innerHTML = [
             //                             '<div id="color">',
             //                                 'Brush Color：',
@@ -166,7 +166,7 @@
         },
         //设置顶端工具栏不可见
         toolsUnvisible:function(){
-            this.tools.style.visibility="hidden";
+            //this.tools.style.visibility="hidden";
 
 
             // this.tools.innerHTML = "";
@@ -268,7 +268,7 @@
                     t.storageColor = t.color[this.index];
                     t.canvas.style.cursor = "url(../../Tpl/public/img/b.cur) 4 31, auto";
                     t.isEraser = false;
-                    t.$("eraser").className = "";
+                    t.$("eraser").className='btn btn-warning';
                 };
             }
             for(var i = 0, l = fontIptNum.length; i < l; i++) {
@@ -278,7 +278,7 @@
                     t.Context2D.lineWidth = t.fontWeight[this.index];
                     t.canvas.style.cursor = "url(../../Tpl/public/img/b.cur) 4 31, auto";
                     t.isEraser = false;
-                    t.$("eraser").className = "";
+                    t.$("eraser").className='btn btn-warning';
                     t.Context2D.strokeStyle = t.storageColor;
                 };
             }
@@ -287,8 +287,8 @@
         changeBackground: function(num) { /*添加画笔粗细的提示背景颜色切换，灰色为当前*/
             var fontIptNum = this.$("font").getElementsByTagName("input");
             for(var j = 0, m = fontIptNum.length; j < m; j++) {
-                fontIptNum[j].className = "";
-                if(j == num) fontIptNum[j].className = "grea";
+                fontIptNum[j].className = "btn btn-info";
+                if(j == num) fontIptNum[j].className = "btn btn-primary";
             }
         },
         //设置选中的颜色外观
@@ -298,7 +298,6 @@
                 color[j].className = "";
                 if(j == num) color[j].className = "on";
             }
-
         },
         //为addcolor标签内添加画笔颜色，颜色为color给定的
         addColor:function(){

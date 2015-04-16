@@ -5,30 +5,24 @@
 <div class="fa">
 <h2 align="center" style="margin-top:15px">UPaintIGuess</h2>
     <div class="top" id="top">
-       <div id="addcolor">
+       <div id="addcolor" class="row">
         </div>
         <div class="font" id="font">
              Brush Width :
-            <input type="button" value="thin" style="width:50px" class="grea"/>  
-            <input type="button" value="medium"style="width:50px" />
-            <input type="button" value="thick" style="width:50px"/>
+            <input type="button" value="thin" class="btn btn-info"  />  
+            <input type="button" value="medium" class="btn btn-info"  />
+            <input type="button" value="thick" class="btn btn-info"  />
         </div>
         <div>
              Eraser：
-            <input id="eraser" style="width:40px;font-size:14px;"type="button"  /><!--引入橡皮的图片资源-->
-        </div>
-         <div>
-             Clear:
-            <input id="clear" type="button"  style="width:40px;"/><!--引入清扫的图片资源-->
+            <input id="eraser" type="button" class="btn btn-warning" value='Eraser'/>
         </div>
     </div>
        <div>
-             Ready:
-            <input id="ready" type="button"  style="width:40px;" onclick='websocket.send_ready()'/>
+            <input id="ready" type="button" class="btn btn-success" value='Ready' onclick='websocket.send_ready()'/>
         </div>
         <div>
-             Leave:
-            <a href='/room' ><input type="button"  style="width:40px;" onclick='websocket.leave()'/></a>
+            <a href='/room' ><input type="button" value='Leave' class="btn btn-danger" onclick='websocket.leave()'/></a>
         </div>
 
         <canvas style="margin-top: 10px;" id="canvas" width="740px" height="420px">Your current brower doesn't support for canvas label,please use other browers</canvas>
@@ -41,7 +35,7 @@
         <h3 align="center" style="margin-top:10px">Chatting Online</h3>
         <div class="log" id="log"></div>
         <input id="msg" class="msg" type="textbox"/> 
-        <button class="send" onClick="chat.send_Msg()">send</button>
+        <button class="send" class="btn btn-info" onClick="chat.send_Msg()">send</button>
     </div>
 </div>
 <script type="text/javascript">
@@ -49,6 +43,7 @@ websocket.init();
 websocket.join();
 paint.init();
 paint.toolsUnvisible();
+$('#top').hide();
 $('.send').hide();
 </script>
 {% endblock %}

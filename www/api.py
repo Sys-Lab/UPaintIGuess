@@ -28,6 +28,7 @@ class Player(object):
     def __init__(self, username, email):
         super(Player, self).__init__()
         self.username = username
+        self.email=email
 
     def ready(self):
         self.ready = True

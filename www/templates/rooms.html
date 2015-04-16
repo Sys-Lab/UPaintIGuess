@@ -1,13 +1,18 @@
 {% extends "__base__.html" %}
 
 {% block content %}
+<h1><strong><p class='text-center'>Join Room</p></strong></h1>
 <div>
-    join_room：
-    <input id='join_room' type='text'/>
-    <a href='/main'><input  style="width:40px;font-size:14px;"type="button" onclick='websocket.join_room()' /></a>
+	<label><strong>Room Number</strong></label>
+	<br/>
+    <input id='join_room' type='text'/><br/>
+    <button id='join' class='btn btn-primary btn-lg btn-block'  >join</button>
 </div>
 <br/>
 <script>
-websocket.init();
+$('#join').on('click',function(){
+	window.location.href='http://'+window.location.host+'/main/'+$('#join_room').val(); 
+
+})
 </script>
 {% endblock %}

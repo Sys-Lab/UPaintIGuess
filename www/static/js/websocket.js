@@ -1,7 +1,7 @@
 var websocket={
 	init:function(){
 		var t=this;
-		t.room=null;
+		t.room='1'
 		var host='http://'+window.location.host;
 		try{
 			t.socket=io.connect(host);
@@ -20,25 +20,24 @@ var websocket={
 				}
 			});
 			t.socket.on('msg',function(data){
-				console.log("Msg received");
 				chat.log(data);
 			});
 			t.socket.on('ready',function(data){
 				paint.toolsUnvisible();
+				$('.top').hide();
 				timer.timerStart();
 			});
 			t.socket.on('word',function(data){
 				chat.log(data);
 				paint.toolsVisible();
-			});
-			t.socket.on('clear',function(data){
-				paint.canvasClear();
+				$('.top').show();
 			});
 			t.socket.on('restart',function(data){
 				$('#ready').show();
+				paint.canvasClear();
 			});
 			t.socket.on('join',function(data){
-				this.room=data.room;
+				setroom(data);
 			});
 		});
 	},
@@ -95,10 +94,9 @@ var websocket={
 		}
 		this.socket.emit('draw',data)
 	},
-	send_Clear:function(){
-		this.socket.emit('clear');
-	},
-	join_room:function(){
-		emit('join_room',{'room':$('#join_room').val()});
-	}
+	
+}
+
+function setroom(data){
+	websocket.room=data;
 }

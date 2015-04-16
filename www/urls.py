@@ -1,7 +1,13 @@
+
 __author__ = 'Excelle'
 
-from flask import Flask, render_template, request
-from flask import jsonify, session, redirect, url_for, make_response
+import captcha
+import re
+import time
+import hashlib
+import random
+from flask import Flask, render_template, request, jsonify
+from flask import session, redirect, url_for, make_response
 from config import config
 from api import APIError, Player, dump_class
 from flask.ext.socketio import SocketIO, send, emit
@@ -9,9 +15,6 @@ from flask.ext.socketio import join_room, leave_room
 from flask.ext.sqlalchemy import SQLAlchemy
 from random import randrange
 
-import captcha
-import re
-import time
 
 _RE_MD5 = re.compile(r'^[0-9a-fA-F]{32}$')
 _RE_EMAIL = re.compile(r'^[\w\.\-]+@[\w\-]+(\.[\w\-]+){1,4}$')
@@ -39,6 +42,12 @@ class User(db.Model):
     t_credits = db.Column(db.Integer, default=10)
     t_created_at = db.Column(db.Float, default=time.time())
 
+    def getDict(self):
+        return dict(t_uid=self.t_uid, t_username=self.t_username,
+                    t_password=self.t_password, t_emailaddr=self.t_emailaddr,
+                    t_gender=self.t_gender, t_privilege=self.t_gender,
+                    t_credits=self.t_gender, t_created_at=self.t_created_at)
+
 
 class ExtInfo(db.Model):
     __tablename__ = 'a_usrext'
@@ -51,6 +60,12 @@ class ExtInfo(db.Model):
     t_website = db.Column(db.String)
     t_birthday = db.Column(db.Float)
 
+    def getDict(self):
+        return dict(t_uid=self.t_uid, t_avatar=self.t_avatar,
+                    t_motto=self.t_motto, t_qqid=self.t_qqid,
+                    t_cellphone=self.t_cellphone, t_zipcode=self.t_zipcode,
+                    t_website=self.t_website, t_birthday=self.t_birthday)
+
 
 class Word(db.Model):
     __tablename__ = 'a_words'
@@ -58,13 +73,19 @@ class Word(db.Model):
     t_word = db.Column(db.String(16))
     t_desc = db.Column(db.String(24))
 
+    def getDict(self):
+        return dict(t_id=self.t_id, t_word=self.t_word, t_desc=self.t_desc)
+
 
 def get_current_user():
     user = None
     try:
-        user = request.user
+        user = User.query.filter_by(t_emailaddr=session['email']).first()
     except AttributeError:
         pass
+    except KeyError:
+        pass
+    print user
     return user
 
 
@@ -81,7 +102,7 @@ def handle_api_error(error):
 # This is a interceptor which will validate your login state.
 # If you are requesting /room or /main with visitor identity,
 # this function will redirect you to the homepage
-#@app.before_request
+@app.before_request
 def validate_login():
     # For visitors:
     user = None
@@ -110,16 +131,18 @@ def index():
 def select_room():
     return render_template('rooms.html', user=get_current_user())
 
-@app.route('/main', methods=['GET'])
-def game():
+
+@app.route('/main/<room>', methods=['GET'])
+def game(room):
+    print 'ok'
+    session['room']=room
     return render_template('main.html', user=get_current_user())
 
 
 @app.route('/register', methods=['GET'])
 def register():
-
-    cap, img_string=captcha.generate_captcha()
-    return render_template('register.html')# here need to translate the img string to image
+    cap, img_string = captcha.generate_captcha()
+    return render_template('register.html')
 
 
 @app.route('/login', methods=['GET'])
@@ -134,12 +157,20 @@ def contribute_words():
 
 @app.route('/userinfo', methods=['GET'])
 def display_user_info():
-    return render_template('userinfo.html', user=get_current_user())
+    u = get_current_user()
+    ext = None
+    if u:
+        ext = ExtInfo.query.filter_by(t_uid=u.t_uid).first()
+    return render_template('userinfo.html', user=u, usrext=ext)
 
 
 @app.route('/editinfo', methods=['GET'])
 def edit_user_info():
-    return render_template('editinfo.html', user=get_current_user())
+    u = get_current_user()
+    ext = None
+    if u:
+        ext = ExtInfo.query.filter_by(t_uid=u.t_uid).first()
+    return render_template('editinfo.html', user=u, usrext=ext)
 
 
 @app.route('/changepasswd', methods=['GET'])
@@ -194,19 +225,20 @@ def api_register():
         u.t_emailaddr = email
         u.t_password = password
         u.t_gender = int(gender)
+        db.session.add(u)
+        db.session.commit()
         ext = ExtInfo()
         ext.t_uid = u.t_uid
         if u.t_gender:
             ext.t_avatar = '/static/images/avatar_default_boy.png'
         else:
             ext.t_avatar = '/static/images/avatar_default_girl.png'
-        db.session.add(u)
+        db.session.add(ext)
         db.session.commit()
         session['email'] = u.t_emailaddr
         session['username'] = u.t_username
         session['password'] = u.t_password
-        request.user = u
-        return dump_class(u)
+        return jsonify(username=u.t_username, emailaddr=u.t_emailaddr)
     except KeyError, ex:
         raise APIError(ex.message, 500)
 
@@ -216,8 +248,15 @@ def api_authenticate():
     try:
         email = request.form['email'].strip().lower()
         password = request.form['password'].strip()
-        remember = request.form['remember'].strip()
-        remember = int(remember)
+        try:
+            remember = request.form['remember'].strip()
+            if isinstance(remember, str):
+                if remember == 'on':
+                    remember = 1
+            else:
+                remember = int(remember)
+        except KeyError:
+            remember = 0
         user = User.query.filter_by(t_emailaddr=email).first()
         if not user:
             raise APIError('User does not exist', 400)
@@ -228,9 +267,101 @@ def api_authenticate():
         session['email'] = user.t_emailaddr
         session['username'] = user.t_username
         session['password'] = user.t_password
-        request.user = user
-        user.t_password = '******'
-        return dump_class(user)
+        return jsonify(username=user.t_username, emailaddr=user.t_emailaddr)
+    except KeyError, e:
+        raise APIError(e.message, 500)
+
+
+@app.route('/api/user/passwd', methods=['POST'])
+def api_change_passwd():
+    try:
+        prev_password = request.form['prev_passwd'].strip().lower()
+        new_password = request.form['new_passwd'].strip().lower()
+        captcha = request.form['captcha'].strip().lower()
+        cap_answer = session['captcha'].lower()
+        if not captcha == cap_answer:
+            raise APIError('Wrong captcha!', 400)
+        user = get_current_user()
+        if not _RE_MD5.match(prev_password) or not _RE_MD5.match(new_password):
+            raise APIError('Invalid password format')
+        if not user.t_password == prev_password:
+            raise APIError('The previous password is wrong.')
+        user.t_password = new_password
+        api_logout()
+        return ''
+    except KeyError, e:
+        raise APIError(e.message, 500)
+    except AttributeError, ex:
+        raise APIError(ex.message, 500)
+
+
+@app.route('/api/user/<emailaddr>', methods=['GET'])
+def api_show_userinfo(emailaddr):
+    try:
+        u = User.query.filter_by(t_emailaddr=emailaddr).first()
+        if not u:
+            u = get_current_user()
+        u_ext = ExtInfo.query.filter_by(t_uid=u.t_uid).first()
+        user_dict = {'uid': u.t_uid, 'username': u.t_username, 'email': u.t_emailaddr,
+                     'gender': u.t_gender, 'isadmin': u.t_privilege,
+                     'credits': u.t_credits, 'created_at': u.t_created_at,
+                     'avatar': u_ext.t_avatar, 'motto': u_ext.t_motto,
+                     'qq': u_ext.t_qqid, 'cellphone': u_ext.t_cellphone,
+                     'zipcode': u_ext.t_zipcode, 'website': u_ext.t_website,
+                     'birthday': u_ext.t_birthday}
+        return jsonify(user_dict)
+    except KeyError, e:
+        raise APIError(e.message, 500)
+    except AttributeError, ex:
+        raise APIError(ex.message, 500)
+
+
+@app.route('/api/user/edit', methods=['POST'])
+def api_edit_info():
+    try:
+        user = request.user
+        ext = ExtInfo.query.filter_by(t_uid=user.t_uid).first()
+        username = request.form['username'].strip()
+        gender = request.form['gender'].strip()
+        avatar = request.form['avatar'].strip()
+        motto = request.form['motto'].strip()
+        qq = request.form['qq'].strip()
+        cellphone = request.form['cellphone'].strip()
+        zipcode = request.form['zipcode'].strip()
+        website = request.form['website'].strip()
+        birthday = request.form['birthday'].strip()
+        user.t_username = username
+        user.t_gender = gender
+        ext.t_avatar = avatar
+        ext.t_motto = motto
+        ext.t_qqid = qq
+        ext.t_cellphone = cellphone
+        ext.t_zipcode = zipcode
+        ext.t_website = website
+        ext.t_birthday = birthday
+        user.update()
+        ext.update()
+        return jsonify(user=user, usrext=ext)
+    except Exception, e:
+        raise APIError(e.message, 500)
+
+
+@app.route('/api/avatar', methods=['POST'])
+def api_upload_avatar():
+    try:
+        img_file = request.files['img']
+        mime, extension = img_file.mimetype.split('/')
+        if not mime == 'image':
+            raise APIError('You can only upload an image.')
+        user = get_current_user()
+        ext = ExtInfo.query.filter_by(t_uid=user.t_uid).first()
+        filename_seed = str(time.time())
+        filename = hashlib.md5(filename_seed) + '.' + extension
+        path = 'static/images/uploads/' + filename
+        ext.t_avatar = path
+        ext.update()
+        img_file.save(path)
+        return jsonify(user=user, usrext=ext)
     except KeyError, e:
         raise APIError(e.message, 500)
 
@@ -241,7 +372,7 @@ def api_logout():
     session.pop('username', None)
     session.pop('email', None)
     session.pop('password', None)
-    request.user = None
+    session.pop('room', None)
     return redirect(url_for('/'))
 
 
@@ -254,27 +385,26 @@ def on_join(data):
     room = session['room']
     join_room(room)
     p = Player(username, email)
-    if isinstance(players[room], list):
+    if players.has_key(room):
         players[room][0].append(p)
     else:
-        players[room]= [[],None,None]
+        players[room]= [[],'1','1']
         players[room][0].append(p)
-    send(username + ' has joined the group ' + room, room=room)
-    emit('join',{'room':session['room']})
+    emit('msg',username + ' has joined the group' + room, room=room)
+    emit('join',room)
 
-@socketio.on('join_room')
-def re_join(data):
-    session['room']=data['room']
 
 
 @socketio.on('leave')
 def on_leave(data):
+    global players
     username = session['username']
     email = session['email']
     room = data['room']
     leave_room(room)
-    if isinstance(players[room], list):
+    if players.has_key(room):
         for i in range(players[room][0].__len__()):
+            print i
             if players[room][0][i].email == email:
                 check_out_player(players[room][0].pop(i))
     send(username + ' has left the room.', room=room)
@@ -287,15 +417,17 @@ def on_ready(data):
     email = session['email']
     room = data['room']
     send(username + ' is ready.', room=room)
-    if isinstance(players[room], list):
+    ready_to_go = False
+    if players.has_key(room):
         ready_to_go = True
         # Set current player ready
         for i in players[room][0]:
             if i.email == email:
-                i.ready()
+                i.ready=True
         # Query for whether all users are ready.
         for i in players[room][0]:
-            if not i.ready():
+            print i.ready
+            if not i.ready:
                 ready_to_go = False
     if ready_to_go:
         emit('ready',room=data['room'])
@@ -305,8 +437,8 @@ def on_ready(data):
 
 @socketio.on('draw')
 def on_draw(data):
-    print 'darw ok'
     emit('draw', data, room=data['room'])
+
 
 @socketio.on('get_desc')
 def on_get_desc(data):
@@ -319,35 +451,38 @@ def on_chat(data):
     room = data['room']
     # Check if guessed right. If so no display.
     if data['message'] == players[room][1]:
-        if isinstance(players[room], list):
+        if players.has_key(room):
             for i in players[room][0]:
                 if i.email == session['email']:
+                    print 'ok'
                     i.answer_ok()
                     i.add_points(3)
     else:
         emit('msg',session['username'] +':' + data['message'],
              json=False, room=data['room'])
-        print 'send msg success'
 
 
 @socketio.on('end')
 def on_game_end(data):
     # Check out all players
-    if isinstance(players[data['room']], list):
+    global players
+    p=0
+    if players.has_key(data['room']):
         for i in players[data['room']][0]:
             if i.username==session['username']:
                 check_out_player(i)
-                p=i
+                p=i.get_points()
                 break
-    emit('message',session['username']+':'+chr(p.get_points()),room=data['room'])       
+    emit('msg',session['username']+':'+str(p),room=data['room'])
+    emit('restart',{})       
 
 def pick_word(room):
     global players
     rows = Word.query.count()
     num = randrange(rows)
-    word = Word.query.filter_by(t_id=num).first()
-    players[room][1] = word['t_word']
-    players[room][2] = word['t_desc']
+    word = Word.query.filter_by(t_id=num+1).first()
+    players[room][1] = word.t_word
+    players[room][2] = word.t_desc
 
 
 def check_out_player(player):
@@ -356,8 +491,9 @@ def check_out_player(player):
     '''
     # Get corresponding user object
     user = User.query.filter_by(t_emailaddr=player.email).first()
-    user.t_credits += player.points
-    user.update()
+    player.ready=False
+    user.t_credits += player.get_points()
+    #user.update()
 
 if __name__ == '__main__':
     db_user = config.configs.db.user
