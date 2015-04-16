@@ -336,7 +336,7 @@ def api_edit_info():
         ext.t_website = website
         ext.t_birthday = birthday
         db.session.commit()
-        return jsonify(user=user, usrext=ext)
+        return jsonify(user=user.getDict(), usrext=ext.getDict())
     except Exception, e:
         raise APIError(e.message, 500)
 

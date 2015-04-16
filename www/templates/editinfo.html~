@@ -48,13 +48,14 @@
 				<input type="text" name="birthday" placeholder="input your birthday">
 				</div>
 
-			<!-- <span class="label label-default">Your current vartar:</span>
+			<!-- <span class="label 	label-default">Your current vartar:</span>
 				<img src="{{usrext.t_avatar}}">-->
 			<div class="control-group">
 			   
 			    <label class="control-label" >Avatar:</label>
 				<div class="controls">
 					<img src="{{usrext.t_avatar}}">
+					<input type="text" id="avatar_id" name="avatar" value="{{usrext.t_avatar}}" class="hidden" >
 				</div>
 			
 			<div class="control-group">
@@ -63,18 +64,41 @@
 				</div>
 			</div>
 		</form>
+		<!--debug image upload-->
+		<form class="offset1" name="form1" id="form1" action="/api/avatar" method="post" enctype="multipart/form-data">
+		<div id="demo">
+		<input id="img" name="img" type="file" />
+		<button type="submit" class="btn btn-middle btn-primary">upload</button>
+		<img id="img1" width="60" height="60">
+		</div>
+		<div id="large"></div>
+		
+		</form>
 	</div>
 	<div id="footer" class="container span12">
 	</div>
 
-    <!--对密码做md5处理-->
+   
     <script>
-       // alert($.md5('conan'));
-        function doSubmit() {
-                        var raw_pwd=$("#password_id")[0].value;
-                        alert(raw_pwd);
-                        var md5_pwd=$.md5(raw_pwd);
-                        $("#password_id").val(md5_pwd);
-        }
+	 //image upload
+       $(function(){
+	var gg = document.getElementById("img1");
+	var ei = document.getElementById("large");
+	gg.onmousemove = function(event){
+		event = event || window.event;
+		ei.style.display = "block";
+		ei.innerHTML = '<img style="border:1px solid gray;" src="' + this.src + '" />';
+		ei.style.top  = document.body.scrollTop + event.clientY + 12 + "px";
+		ei.style.left = document.body.scrollLeft + event.clientX + 12 + "px";
+	}
+	gg.onmouseout = function(){
+		ei.innerHTML = "";
+		//ei.style.display = "none";
+	}	
+	$("#img").change(function(){
+		$("#img1").attr("src","file:///"+$("#img").val());
+	})
+ 	});
+	
     </script>
 {% endblock %}
