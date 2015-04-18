@@ -430,6 +430,7 @@ def on_ready(data):
             if not i.ready:
                 ready_to_go = False
     if ready_to_go:
+        print 'readyok'
         emit('ready',room=data['room'])
         pick_word(data['room'])
         emit('word',players[data['room']][1])
@@ -461,6 +462,9 @@ def on_chat(data):
         emit('msg',session['username'] +':' + data['message'],
              json=False, room=data['room'])
 
+@socketio.on('clear')
+def clear(data):
+    emit('clear',{},room=data['room'])
 
 @socketio.on('end')
 def on_game_end(data):

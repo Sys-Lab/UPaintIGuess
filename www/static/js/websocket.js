@@ -39,6 +39,10 @@ var websocket={
 			t.socket.on('join',function(data){
 				setroom(data);
 			});
+			t.socket.on('clear',function(data){
+				console.log('claer')
+				paint.canvasClear();
+			})
 		});
 	},
 	join:function(){
@@ -94,6 +98,9 @@ var websocket={
 		}
 		this.socket.emit('draw',data)
 	},
+	send_Clear:function(){
+		this.socket.emit('clear',{'room':this.room});
+	}
 	
 }
 
