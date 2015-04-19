@@ -497,7 +497,7 @@ def check_out_player(player):
     user = User.query.filter_by(t_emailaddr=player.email).first()
     player.ready=False
     user.t_credits += player.get_points()
-    #user.update()
+    db.session.commit()
 
 if __name__ == '__main__':
     db_user = config.configs.db.user
