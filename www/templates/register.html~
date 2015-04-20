@@ -7,19 +7,27 @@
 			<label class="control-label" >Username:</label>
 				<div class="controls">
 <<<<<<< HEAD
+<<<<<<< HEAD
 				<input type="text" name="username" placeholder="Username">
 =======
 				<input type="text" name="username" placeholder="username">
 >>>>>>> 5ab4c4e0b36ac6795b8772ab496bdda9d9b71818
+=======
+				<input type="text" name="username" placeholder="username">
+>>>>>>> ab033743a6f1ef587cc7ef161084de0616ccd481
 				</div>
 			<div class="control-group">
 			    <label class="control-label" for="inputPassword">Password:</label>
 				<div class="controls">
 <<<<<<< HEAD
+<<<<<<< HEAD
 				<input type="password" name="password" placeholder="password">
 =======
                     <input type="password"  id="password_id" name="password" placeholder="password" onkeydown="encodePWD()"><!--注册后会有dump class错误，暂时未解决-->
 >>>>>>> 5ab4c4e0b36ac6795b8772ab496bdda9d9b71818
+=======
+                    <input type="password"  id="password_id" name="password" placeholder="password" onkeydown="encodePWD()"><!--注册后会有dump class错误，暂时未解决-->
+>>>>>>> ab033743a6f1ef587cc7ef161084de0616ccd481
 				</div>
 			<div class="control-group">
 			    <label class="control-label" >Email:</label>
@@ -43,10 +51,14 @@
 			<div class="control-group">
 				<div class="controls">
 <<<<<<< HEAD
+<<<<<<< HEAD
 				<button type="submit" class="btn btn-large btn-primary">Register</button>
 =======
 				<button type="submit" onclick="doSubmit();" class="btn btn-large btn-primary">Register</button>
 >>>>>>> 5ab4c4e0b36ac6795b8772ab496bdda9d9b71818
+=======
+				<button type="submit" onclick="doSubmit();" class="btn btn-large btn-primary">Register</button>
+>>>>>>> ab033743a6f1ef587cc7ef161084de0616ccd481
 				</div>
 			</div>
 		</form>
@@ -54,7 +66,10 @@
 	<div id="footer" class="container span12">
 	</div>
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> ab033743a6f1ef587cc7ef161084de0616ccd481
 
     <!--对密码做md5处理-->
     <script>
@@ -67,5 +82,8 @@
                         $("#password_id").val(md5_pwd);//重置password框属性值
         }
     </script>
+<<<<<<< HEAD
 >>>>>>> 5ab4c4e0b36ac6795b8772ab496bdda9d9b71818
+=======
+>>>>>>> ab033743a6f1ef587cc7ef161084de0616ccd481
 {% endblock %}

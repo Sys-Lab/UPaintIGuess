@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+__author__ = 'Excelle'
+
+>>>>>>> ab033743a6f1ef587cc7ef161084de0616ccd481
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import random
 try:

@@ -1,0 +1,49 @@
+{% extends "__base__.html" %}
+
+{% block content %}
+
+<div class="fa">
+<h2 align="center" style="margin-top:15px">UPaintIGuess</h2>
+    <div class="top" id="top">
+       <div id="addcolor" class="row">
+        </div>
+        <div class="font" id="font">
+             Brush Width :
+            <input type="button" value="thin" class="btn btn-info"  />  
+            <input type="button" value="medium" class="btn btn-info"  />
+            <input type="button" value="thick" class="btn btn-info"  />
+        </div>
+        <div>
+            <input id="eraser" type="button" class="btn btn-warning" value='Eraser'/>
+            <input id="clear" type="button" class="btn btn-danger" value='Clear'/>
+        </div>
+    </div>
+       <div>
+            <input id="ready" type="button" class="btn btn-success" value='Ready' onclick='websocket.send_ready()'/>
+        </div>
+        <div>
+            <a href='/room' ><input type="button" value='Leave' class="btn btn-danger" onclick='websocket.leave()'/></a>
+        </div>
+
+        <canvas style="margin-top: 10px;" id="canvas" width="740px" height="420px">Your current brower doesn't support for canvas label,please use other browers</canvas>
+
+    
+    <div class="countdown" id="countdown">
+    </div>
+
+    <div class="right">
+        <h3 align="center" style="margin-top:10px">Chatting Online</h3>
+        <div class="log" id="log"></div>
+        <input id="msg" class="msg" type="textbox"/> 
+        <button class="send" class="btn btn-info" onClick="chat.send_Msg()">send</button>
+    </div>
+</div>
+<script type="text/javascript">
+websocket.init();
+websocket.join();
+paint.init();
+paint.toolsUnvisible();
+$('#top').hide();
+$('.send').hide();
+</script>
+{% endblock %}

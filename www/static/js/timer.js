@@ -1,6 +1,6 @@
 var timer = {
 	_init:function(){
-		this.max = 60;
+		this.max = 62;
 		this._now = 0;
 		this._timeDiv_id = "countdown";
 		this._timeDiv = document.getElementById(this._timeDiv_id);
@@ -24,13 +24,29 @@ var timer = {
 	},
 	_timeOver:function(){
 		clearInterval(this._timeout);
-<<<<<<< HEAD
-		// alert(this.now--);
-		// TODO
-=======
-		alert(this.now--);
+		chat.log('draw time out!');
+		paint.toolsUnvisible();
+		$('.top').hide();
+		this.answer_timerStart();
+	},
+	answer_timerStart:function(){
+		this._init();
+		var t = this;
+		t._now = 30;
+		this._timeout = setInterval(function(){
+			if(t._now >= 0){
+				t._setTime(t._now--);
+			}else{
+				t._answer_timeOver();
+				return;
+			}
+		},1000);
+	},
+	_answer_timeOver:function(){
+		clearInterval(this._timeout);
+		chat.log('answer time out!');
 		websocket.end_game();
 		paint.toolsUnvisible();
->>>>>>> ab033743a6f1ef587cc7ef161084de0616ccd481
+		$('.top').hide();
 	}
 }
