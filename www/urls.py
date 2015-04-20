@@ -375,10 +375,6 @@ def api_logout():
 def api_logout():
     cancel_session()
     return redirect(url_for('.index'))
-=======
-    session.pop('room', None)
-    return redirect(url_for('/'))
->>>>>>> ab033743a6f1ef587cc7ef161084de0616ccd481
 
 
 # Socket IO apis
@@ -387,86 +383,47 @@ def on_join(data):
     global players
     username = session['username']
     email = session['email']
-<<<<<<< HEAD
-    room = data['room']
-    join_room(room)
-    p = Player(username, email)
-    if isinstance(players[room], list):
-        players[room].append(p)
-    else:
-        players[room] = [p]
-    send(username + ' has joined the group ' + room, room=room)
-=======
     room = session['room']
     join_room(room)
     p = Player(username, email)
     if players.has_key(room):
         players[room][0].append(p)
     else:
-        players[room]= [[],'1','1']
+        players[room] = [[], '1', '1']
         players[room][0].append(p)
-    emit('msg',username + ' has joined the group' + room, room=room)
-    emit('join',room)
-
->>>>>>> ab033743a6f1ef587cc7ef161084de0616ccd481
+    emit('msg', username + ' has joined the group' + room, room=room)
+    emit('join', room)
 
 
 @socketio.on('leave')
 def on_leave(data):
-<<<<<<< HEAD
-=======
     global players
->>>>>>> ab033743a6f1ef587cc7ef161084de0616ccd481
     username = session['username']
     email = session['email']
     room = data['room']
     leave_room(room)
-<<<<<<< HEAD
-    if isinstance(players[room], list):
-        for i in range(players[room].__len__()):
-            if players[room][i].email == email:
-                check_out_player(players[room].pop(i))
-=======
     if players.has_key(room):
         for i in range(players[room][0].__len__()):
             print i
             if players[room][0][i].email == email:
                 check_out_player(players[room][0].pop(i))
->>>>>>> ab033743a6f1ef587cc7ef161084de0616ccd481
     send(username + ' has left the room.', room=room)
 
 
 @socketio.on('ready')
 def on_ready(data):
-<<<<<<< HEAD
-=======
     global players
->>>>>>> ab033743a6f1ef587cc7ef161084de0616ccd481
     username = session['username']
     email = session['email']
     room = data['room']
     send(username + ' is ready.', room=room)
-<<<<<<< HEAD
-    if isinstance(players[room], list):
-        ready_to_go = True
-        # Set current player ready
-        for i in players[room]:
-            if i.email == email:
-                i.ready()
-        # Query for whether all users are ready.
-        for i in players[room]:
-            if not i.ready():
-                ready_to_go = False
-    if ready_to_go:
-        return redirect(url_for('/main'))
-=======
     ready_to_go = False
     if players.has_key(room):
         ready_to_go = True
         # Set current player ready
         for i in players[room][0]:
             if i.email == email:
-                i.ready=True
+                i.ready = True
         # Query for whether all users are ready.
         for i in players[room][0]:
             print i.ready
@@ -474,15 +431,13 @@ def on_ready(data):
                 ready_to_go = False
     if ready_to_go:
         print 'readyok'
-        emit('ready',room=data['room'])
+        emit('ready', room=data['room'])
         pick_word(data['room'])
-        emit('word',players[data['room']][1])
->>>>>>> ab033743a6f1ef587cc7ef161084de0616ccd481
+        emit('word', players[data['room']][1])
 
 
 @socketio.on('draw')
 def on_draw(data):
-<<<<<<< HEAD
     emit('draw', data['point'], room=data['room'])
 
 
@@ -493,36 +448,16 @@ def on_get_word(data):
     '''
     pick_word()
     send(session['word'])
-=======
     emit('draw', data, room=data['room'])
->>>>>>> ab033743a6f1ef587cc7ef161084de0616ccd481
 
 
 @socketio.on('get_desc')
 def on_get_desc(data):
-<<<<<<< HEAD
-    send(session['word_desc'], room=data['room'])
-=======
-    emit('msg',players[room][2], room=data['room'])
->>>>>>> ab033743a6f1ef587cc7ef161084de0616ccd481
+    emit('msg', players[room][2], room=data['room'])
 
 
 @socketio.on('msg')
 def on_chat(data):
-<<<<<<< HEAD
-    room = data['room']
-    # Check if guessed right. If so no display.
-    if data['message'] == session['word']:
-        if isinstance(players[room], list):
-            for i in players[room]:
-                if i.email == session['email']:
-                    i.answer_ok()
-                    i.add_points(3)
-    else:
-        send(data['username'] + ':' + data['message'],
-             json=False, room=data['room'])
-
-=======
     global players
     room = data['room']
     # Check if guessed right. If so no display.
@@ -534,18 +469,18 @@ def on_chat(data):
                     i.answer_ok()
                     i.add_points(3)
     else:
-        emit('msg',session['username'] +':' + data['message'],
+        emit('msg', session['username'] + ':' + data['message'],
              json=False, room=data['room'])
+
 
 @socketio.on('clear')
 def clear(data):
-    emit('clear',{},room=data['room'])
->>>>>>> ab033743a6f1ef587cc7ef161084de0616ccd481
+    emit('clear', {}, room=data['room'])
+
 
 @socketio.on('end')
 def on_game_end(data):
     # Check out all players
-<<<<<<< HEAD
     if isinstance(players[data['room']], list):
         for i in players[data['room']]:
             check_out_player(i)
@@ -558,17 +493,17 @@ def pick_word():
     word = Word.query.filter_by(t_id=num).first()
     session['word'] = word['t_word']
     session['word_desc'] = word['t_desc']
-=======
     global players
-    p=0
+    p = 0
     if players.has_key(data['room']):
         for i in players[data['room']][0]:
-            if i.username==session['username']:
+            if i.username == session['username']:
                 check_out_player(i)
-                p=i.get_points()
+                p = i.get_points()
                 break
-    emit('msg',session['username']+':'+str(p),room=data['room'])
-    emit('restart',{})       
+    emit('msg', session['username'] + ':' + str(p), room=data['room'])
+    emit('restart', {})
+
 
 def pick_word(room):
     global players
@@ -577,7 +512,6 @@ def pick_word(room):
     word = Word.query.filter_by(t_id=num+1).first()
     players[room][1] = word.t_word
     players[room][2] = word.t_desc
->>>>>>> ab033743a6f1ef587cc7ef161084de0616ccd481
 
 
 def check_out_player(player):
@@ -586,12 +520,8 @@ def check_out_player(player):
     '''
     # Get corresponding user object
     user = User.query.filter_by(t_emailaddr=player.email).first()
-<<<<<<< HEAD
-    user.t_credits += player.points
-=======
-    player.ready=False
+    player.ready = False
     user.t_credits += player.get_points()
->>>>>>> ab033743a6f1ef587cc7ef161084de0616ccd481
     db.session.commit()
 
 if __name__ == '__main__':
@@ -605,8 +535,4 @@ if __name__ == '__main__':
                         str(db_port) + '/' + db_name
     app.config['SQLALCHEMY_DATABASE_URI'] = db_connection_str
     app.config.from_object('config.config')
-<<<<<<< HEAD
-    app.run()
-=======
     socketio.run(app)
->>>>>>> ab033743a6f1ef587cc7ef161084de0616ccd481
