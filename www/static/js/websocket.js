@@ -1,3 +1,6 @@
+// Current User ID allocated by server for identification
+var current_id = '';
+
 var websocket={
 	init:function(){
 		var t=this;
@@ -10,13 +13,13 @@ var websocket={
 		}
 		t.socket.on('connect',function(){
 			t.socket.on('draw',function(data){
-				if(data.point.type=="eraser"){
-					paint.eraser_Path(data.point.x.split(","), data.point.y.split(","));
+				if(data.type=="eraser"){
+					paint.eraser_Path(data.x.split(','), data.y.split(','));
 				}
 				else{
-					paint.pen_Size(data.point.size);
-					paint.pen_Color(data.point.color);
-					paint.pen_Path(data.point.x.split(","), data.point.y.split(","));
+					paint.pen_Size(data.size);
+					paint.pen_Color(data.color);
+					paint.pen_Path(data.x.split(','), data.y.split(','));
 				}
 			});
 			t.socket.on('msg',function(data){
@@ -28,9 +31,14 @@ var websocket={
 				timer.timerStart();
 			});
 			t.socket.on('word',function(data){
-				chat.log(data);
-				paint.toolsVisible();
-				$('.top').show();
+				if(current_id == data.user){
+					paint.toolsVisible();
+					chat.log(data.word);
+					$('.top').show();
+				} else {
+					paint.toolsUnvisible();
+					$('.top').hide();
+				}
 			});
 			t.socket.on('restart',function(data){
 				$('#ready').show();
@@ -39,18 +47,32 @@ var websocket={
 			t.socket.on('join',function(data){
 				setroom(data);
 			});
+			t.socket.on('user_answer_ok',function(data){
+				if(data == current_id){
+					paint.toolsUnvisible();
+				}
+				$('.top').hide();
+			});
+			t.socket.on('end_this_session', function(data){
+				location.assign('/room', '');
+			});
+			t.socket.on('user', function(data) {
+				//current_id = data;
+			});
 			t.socket.on('clear',function(data){
-				console.log('claer')
+				console.log('clear')
 				paint.canvasClear();
 			})
 		});
 	},
 	join:function(){
-		this.socket.emit('join',{});
+		current_id = $.md5((new Date().getTime()).toString() + Math.random().toString())
+		this.socket.emit('join',{'user': current_id});
 	},
 	leave:function(){
-		this.socket.emit('leave',{'room':this.room});
+		this.socket.emit('leave',{'room': this.room});
 		this.room=null;
+		location.assign('/room');
 	},
 	send_ready:function(){
 		this.socket.emit('ready',{'room':this.room});

@@ -1,9 +1,9 @@
 // awesome.js
 
 function showError(err) {
-    var alert = $('div.uk-alert-danger');
+    var alert = $('div.alert-danger');
     if (err) {
-        alert.text(err.message || err.error || err).removeClass('uk-hidden').show();
+        alert.text(err.message || err.error || err).removeClass('hidden').show();
         try {
             if (alert.offset().top < ($(window).scrollTop() - 41)) {
                 $('html,body').animate({scrollTop: alert.offset().top - 41});
@@ -12,7 +12,7 @@ function showError(err) {
         catch (e) {}
     }
     else {
-        alert.addClass('uk-hidden').hide().text('');
+        alert.addClass('hidden').hide().text('');
     }
 }
 
@@ -184,6 +184,6 @@ function showConfirm(title, text, fn_ok, fn_cancel) {
 
 $(function() {
     if (location.pathname === '/' || location.pathname.indexOf('/blog')===0) {
-        $('li[data-url=blogs]').addClass('uk-active');
+        $('li[data-url=blogs]').addClass('active');
     }
 });

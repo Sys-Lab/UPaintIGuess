@@ -24,7 +24,7 @@ var timer = {
 	},
 	_timeOver:function(){
 		clearInterval(this._timeout);
-		chat.log('draw time out!');
+		chat.log('Draw time out!');
 		paint.toolsUnvisible();
 		$('.top').hide();
 		this.answer_timerStart();
@@ -44,7 +44,7 @@ var timer = {
 	},
 	_answer_timeOver:function(){
 		clearInterval(this._timeout);
-		chat.log('answer time out!');
+		chat.log('Answer time out!');
 		websocket.end_game();
 		paint.toolsUnvisible();
 		$('.top').hide();
