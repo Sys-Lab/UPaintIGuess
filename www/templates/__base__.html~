@@ -27,14 +27,14 @@
     {% block beforehead %}<!-- Add some extra javascript or css before </head> -->{% endblock %}
     
 </head>
-<body>
+<body background={{url_for('static', filename='images/homepage/homepage01_background.jpg')}}>
 	<h1 class="text-center">UPaintIGuess</h1>
     <div class="navbar navbar-inverse">
       <div class="navbar-inner nav-collapse" style="height: auto;">
         <ul class="nav">
           <li class="active"><a href="/">Home</a></li>
           {% if user %}
-		      <li><a href="/main/<room>">UPaintIGuess</a></li>
+		      <li><a href="/room">UPaintIGuess</a></li>
 		      <li><a href="/userinfo">User Info</a></li>
 		      <li><a href="/editinfo">Edit Information</a></li>
 		      <li><a href="/changepasswd">Change Password</a></li>

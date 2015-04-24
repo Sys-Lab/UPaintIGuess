@@ -7,7 +7,7 @@
 	<br/>
     <input id='join_room' type='text'/><br/>
     <!--<button id='join' class='btn btn-primary btn-lg btn-block'  >join</button>-->
-    <button id='join' class='btn btn-primary'  >&nbsp;join &nbsp;</button>
+    <button id='join' class='btn btn-primary'  >join</button>
 </div>
 <br/>
 <script>
