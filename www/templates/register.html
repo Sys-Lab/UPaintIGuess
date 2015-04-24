@@ -2,58 +2,108 @@
 
 {% block title %}Register{% endblock %}
 
+{% block beforehead %}
+
+<script type="text/javascript">
+    function validateEmail(email) {
+        var re = /^[a-z0-9\.\-\_]+\@[a-z0-9\-\_]+(\.[a-z0-9\-\_]+){1,4}$/;
+        return re.test(email.toLowerCase());
+    }
+    function refreshCaptcha()
+    {
+        var a = document.getElementById('captcha');
+        a.setAttribute('src', '/api/captcha');
+    }
+    $(function(){
+        var vm = new Vue({
+            el: '#form-register', 
+            data: {
+                username: '',
+                password: '',
+                email: '',
+                sex: '',
+                captcha: ''
+            },
+            methods: {
+                submit: function(event){
+                    event.preventDefault();
+                    if(! this.username.trim()){
+                        return showError('Please enter a username.');
+                    }
+                    if(! this.password){
+                        return showError('Password shouldn\'t be empty.');
+                    }
+                    if(! validateEmail(this.email.trim().toLowerCase())) {
+                        return showError('Please enter a valid email address.');
+                    }
+                    if(this.password.length < 6){
+                        return showError('Too short password.');
+                    }
+                    postApi('/api/register', {
+                        username: this.username,
+                        password: $.md5(this.password),
+                        email: this.email,
+                        gender: this.sex,
+                        captcha: this.captcha
+                    }, function(err, r){
+                        if(err){
+                            showError(err)
+                        } else {
+                            return location.assign('/')
+                        }
+                    });
+                }
+            }
+        });
+    });
+</script>
+
+{% endblock %}
+
 {% block content %}
 	<div id="register" class="container span8 offset4">
 		<h1 class="page-header">Welcome to UPaintIGuess</h1>
-		<form class="form-horizontal" action="/api/register" method="post">
-			<label class="control-label" >Username:</label>
-				<div class="controls">
-				<input type="text" name="username" placeholder="username">
-				</div>
+		<form class="form-horizontal" id="form-register" v-on="submit: submit">
+            <div class='alert alert-danger hidden'></div>
+            <div class="control-group">
+                <label class="control-label" >Username:</label>
+                <div class="controls">
+                    <input type="text" v-model="username" />
+                </div>
+            </div>
 			<div class="control-group">
 			    <label class="control-label" for="inputPassword">Password:</label>
 				<div class="controls">
-                    <input type="password"  id="password_id" name="password" placeholder="password" onkeydown="encodePWD()"><!--注册后会有dump class错误，暂时未解决-->
+                    <input type="password"  id="password_id" v-model="password" />
 				</div>
+            </div>
 			<div class="control-group">
-			    <label class="control-label" >Email:</label>
-				<div class="controls">
-				<input type="text" name="email" placeholder="someone@qq.com">
-				</div>
-		
+                <label class="control-label" >Email:</label>
+			    <div class="controls">
+			         <input type="text" v-model="email" placeholder="test@example.com">
+                </div>
+            </div>	
 			<div class="control-group">
 			    <label class="control-label" >Gender:</label>
 				<div class="controls">
-				<input type="text" name="gender" placeholder="0 for girls and 1 for boys">
+				    Male&nbsp;<input type="radio" value="1" v-model="sex" name="sex"/>&nbsp;
+                    Female&nbsp;<input type="radio" value="0"  v-model="sex" name="sex"/>
 				</div>
+            </div>
 			<div class="control-group">
 			    <label class="control-label" >Captcha:</label>
 				<div class="controls">
-				<input type="text" name="captcha" placeholder="input the identifying code you see">
-				<img src="/api/captcha">
+				    <input type="text" v-model="captcha">
+				    <img id="captcha" src="/api/captcha" onclick="refreshCaptcha()">
 				</div>
-				
-			
+			</div>
 			<div class="control-group">
 				<div class="controls">
-				<button type="submit" onclick="doSubmit();" class="btn btn-large btn-primary">Register</button>
+				<button type="submit" class="btn btn-large btn-primary">Register</button>
 				</div>
 			</div>
 		</form>
 	</div>
 	<div id="footer" class="container span12">
 	</div>
-
-    <!--对密码做md5处理-->
-    <script>
-       // alert($.md5('conan'));
-        function doSubmit() {
-                        var raw_pwd=$("#password_id")[0].value;
-                        alert(raw_pwd);
-                       //alert(raw_pwd);
-                        var md5_pwd=$.md5(raw_pwd);
-                       // alert(md5_pwd);
-                        $("#password_id").val(md5_pwd);//重置password框属性值
-        }
-    </script>
 {% endblock %}

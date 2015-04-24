@@ -38,7 +38,10 @@ var paint = {
         this.iptClear = this.$("clear"); //清除画布按钮
         this.question = this.$("question");//题目提示框
         this.addcolor = this.$("addcolor");
+<<<<<<< HEAD
         this.imgurl = this.$("imgurl"); //导出图片路径按钮
+=======
+>>>>>>> ab033743a6f1ef587cc7ef161084de0616ccd481
     },
     //start 以下两个方法是辅助获取鼠标在画布上的坐标位置
     getOffset:function(evt){
@@ -237,8 +240,12 @@ var paint = {
         }
     },
     //获取图片的url
+<<<<<<< HEAD
     getUrl:function(){
         open(this.canvas.toDataURL());//弹出新窗口显示画的图片
+=======
+
+>>>>>>> ab033743a6f1ef587cc7ef161084de0616ccd481
     },
     //清除画布
     canvasClear:function(){

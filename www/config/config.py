@@ -1,5 +1,3 @@
-__author__ = 'Excelle'
-
 import config_default
 
 

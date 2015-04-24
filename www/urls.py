@@ -2,15 +2,16 @@ import captcha
 import re
 import time
 import hashlib
-import random
+import traceback
 from flask import Flask, render_template, request, jsonify
 from flask import session, redirect, url_for, make_response
 from config import config
-from api import APIError, Player, dump_class
+from api import APIError, Player, datetime_filter
 from flask.ext.socketio import SocketIO, send, emit
 from flask.ext.socketio import join_room, leave_room
 from flask.ext.sqlalchemy import SQLAlchemy
 from random import randrange
+from base64 import b64decode
 
 
 _RE_MD5 = re.compile(r'^[0-9a-fA-F]{32}$')
@@ -129,8 +130,10 @@ def select_room():
     return render_template('rooms.html', user=get_current_user())
 
 
-@app.route('/main', methods=['GET'])
-def game():
+@app.route('/main/<room>', methods=['GET'])
+def game(room):
+    print 'ok'
+    session['room'] = room
     return render_template('main.html', user=get_current_user())
 
 
@@ -203,18 +206,18 @@ def api_register():
         captcha = request.form['captcha'].strip()
         cap_answer = session['captcha']
         if captcha.lower() != cap_answer.lower():
-            raise APIError('Wrong captcha.', 403)
+            raise APIError('Wrong captcha.', 200)
         check_exist = User.query.filter_by(t_emailaddr=email).first()
         if check_exist:
-            raise APIError('Email address has been registered.', 400)
+            raise APIError('Email address has been registered.', 200)
         if not _RE_MD5.match(password):
-            raise APIError('Invalid password format', 400)
+            raise APIError('Invalid password format', 200)
         if not _RE_EMAIL.match(email):
-            raise APIError('Invalid email address', 400)
+            raise APIError('Invalid email address', 200)
         if not username.strip():
-            raise APIError('Empty username', 400)
+            raise APIError('Empty username', 200)
         if not gender:
-            raise APIError('A gender should be selected', 400)
+            raise APIError('A gender should be selected', 200)
         u = User()
         u.t_username = username
         u.t_emailaddr = email
@@ -254,9 +257,9 @@ def api_authenticate():
             remember = 0
         user = User.query.filter_by(t_emailaddr=email).first()
         if not user:
-            raise APIError('User does not exist', 400)
+            raise APIError('User does not exist', 200)
         if not user.t_password == password:
-            raise APIError('Wrong password', 400)
+            raise APIError('Wrong password', 200)
         if remember:
             session.permanent = True
         session['email'] = user.t_emailaddr
@@ -275,7 +278,7 @@ def api_change_passwd():
         captcha = request.form['captcha'].strip().lower()
         cap_answer = session['captcha'].lower()
         if not captcha == cap_answer:
-            raise APIError('Wrong captcha!', 400)
+            raise APIError('Wrong captcha!', 200)
         user = get_current_user()
         if not _RE_MD5.match(prev_password) or not _RE_MD5.match(new_password):
             raise APIError('Invalid password format')
@@ -284,7 +287,7 @@ def api_change_passwd():
         user.t_password = new_password
         db.session.commit()
         cancel_session()
-        return ''
+        return jsonify(value='')
     except KeyError, e:
         raise APIError(e.message, 500)
     except AttributeError, ex:
@@ -337,15 +340,17 @@ def api_edit_info():
         ext.t_birthday = birthday
         db.session.commit()
         return jsonify(user=user.getDict(), usrext=ext.getDict())
-    except Exception, e:
-        raise APIError(e.message, 500)
+    except Exception:
+        print traceback.format_exc()
+        raise APIError(traceback.format_exc(), 500)
 
 
 @app.route('/api/avatar', methods=['POST'])
 def api_upload_avatar():
     try:
-        img_file = request.files['img']
-        mime, extension = img_file.mimetype.split('/')
+        img_file = request.form['img']
+        content_type, body = process_file(img_file)
+        mime, extension = content_type.split('/')
         if not mime == 'image':
             raise APIError('You can only upload an image.')
         user = get_current_user()
@@ -355,17 +360,21 @@ def api_upload_avatar():
         path = 'static/images/uploads/' + filename
         ext.t_avatar = path
         db.session.commit()
-        img_file.save(path)
-        return jsonify(user=user.getDict(), usrext=ext.getDict())
-    except KeyError, e:
-        raise APIError(e.message, 500)
+        with open(path, 'wb') as f:
+            f.write(body)
+        return jsonify(src=path)
+    except KeyError:
+        print traceback.format_exc()
+        raise APIError(traceback.format_exc(), 500)
 
 
-def cancel_session():
-    session.permanent = False
-    session.pop('username', None)
-    session.pop('email', None)
-    session.pop('password', None)
+def process_file(data):
+    head, body = data.split(',')
+    desc = head.split(':')[1]
+    mime, encoding = desc.split(';')
+    if encoding == 'base64':
+        body = b64decode(body)
+    return mime, body
 
 
 @app.route('/logout', methods=['GET'])
@@ -374,53 +383,75 @@ def api_logout():
     return redirect(url_for('.index'))
 
 
+def cancel_session():
+    try:
+        session.pop('username', None)
+        session.pop('email', None)
+        session.pop('password', None)
+    except:
+        pass
+
+
 # Socket IO apis
 @socketio.on('join')
 def on_join(data):
     global players
     username = session['username']
     email = session['email']
-    room = data['room']
+    room = session['room']
     join_room(room)
-    p = Player(username, email)
-    if isinstance(players[room], list):
-        players[room].append(p)
+    p = Player(username, email, data['user'])
+    if players.has_key(room):
+        players[room][0].append(p)
     else:
-        players[room] = [p]
-    send(username + ' has joined the group ' + room, room=room)
+        players[room] = [[], '1', '1']
+        players[room][0].append(p)
+    emit('msg', username + ' has joined the group' + room, room=room)
+    emit('user', p.get_id(), room=room)
+    emit('join', room)
 
 
 @socketio.on('leave')
 def on_leave(data):
+    global players
     username = session['username']
     email = session['email']
     room = data['room']
     leave_room(room)
-    if isinstance(players[room], list):
-        for i in range(players[room].__len__()):
-            if players[room][i].email == email:
-                check_out_player(players[room].pop(i))
+    if players.has_key(room):
+        for i in range(players[room][0].__len__()):
+            print i
+            if players[room][0][i].email == email:
+                check_out_player(players[room][0].pop(i))
     send(username + ' has left the room.', room=room)
 
 
 @socketio.on('ready')
 def on_ready(data):
+    global players
     username = session['username']
     email = session['email']
     room = data['room']
     send(username + ' is ready.', room=room)
-    if isinstance(players[room], list):
+    ready_to_go = False
+    if players.has_key(room):
         ready_to_go = True
         # Set current player ready
-        for i in players[room]:
+        for i in players[room][0]:
             if i.email == email:
-                i.ready()
+                i.ready = True
         # Query for whether all users are ready.
-        for i in players[room]:
-            if not i.ready():
+        for i in players[room][0]:
+            print i.ready
+            if not i.ready == True:
                 ready_to_go = False
+                break
     if ready_to_go:
-        return redirect(url_for('/main'))
+        print 'readyok'
+        players[room][0][0].is_turn = True
+        emit('ready', room=data['room'])
+        pick_word(data['room'])
+        emit('word', {'user': players[room][0][0].get_id(), 'word': players[room][1]}, room=data['room'])
 
 
 @socketio.on('draw')
@@ -434,44 +465,83 @@ def on_get_word(data):
         Get a word from the database randomly
     '''
     pick_word()
-    send(session['word'])
+    user = ''
+    if players.has_key(session['room']):
+        for i in players[session['room']][0]:
+            if i.is_turn:
+                user = i.get_id()
+    emit('word', {'user': user, 'word': players[session['room']][1]}, room=session['room'])
+    # emit('draw', data, room=data['room'])
 
 
 @socketio.on('get_desc')
 def on_get_desc(data):
-    send(session['word_desc'], room=data['room'])
+    room = data['room']
+    emit('msg', players[room][2], room=data['room'])
 
 
 @socketio.on('msg')
 def on_chat(data):
+    global players
     room = data['room']
     # Check if guessed right. If so no display.
-    if data['message'] == session['word']:
-        if isinstance(players[room], list):
-            for i in players[room]:
-                if i.email == session['email']:
-                    i.answer_ok()
-                    i.add_points(3)
+    if data['message'] == players[room][1]:
+        if players.has_key(room):
+            for i in range(players[room][0].__len__()):
+                if players[room][0][i].email == session['email']:
+                    print 'ok'
+                    players[room][0][i].answer_ok()
+                    players[room][0][i].add_points(3)
+                    emit('user_answer_ok', players[room][0][i].get_id(), room=room)
+            try:
+                pick_word(room)
+                for i in range(players[room][0].__len__()):
+                    if players[room][0][i].is_turn:
+                        players[room][0][i].is_turn = False
+                        players[room][0][i+1].is_turn = True
+                        break
+                for i in range(players[room][0].__len__()):
+                    if players[room][0][i].is_turn:
+                        emit('word', {'user': players[room][0][i].get_id(), 'word': players[room][1]}, room=data['room'])
+                        break
+            except IndexError:
+                print('IndexError')
+                emit('end_this_session', '', room=room)
+            # Check: If all players have correctly answerd, the game ends.
+            flag_end = True
+            for i in players[room][0]:
+                if not i.answer:
+                    flag_end = False
+                    break
+            if flag_end:
+                print('Flag-end = 1')
+                emit('end_this_session', room, room=room)
     else:
-        send(data['username'] + ':' + data['message'],
+        emit('msg', session['username'] + ':' + data['message'],
              json=False, room=data['room'])
+
+
+@socketio.on('clear')
+def clear(data):
+    emit('clear', {}, room=data['room'])
 
 
 @socketio.on('end')
 def on_game_end(data):
     # Check out all players
-    if isinstance(players[data['room']], list):
-        for i in players[data['room']]:
+    if isinstance(players[data['room']][0], list):
+        for i in players[data['room']][0]:
             check_out_player(i)
     return players.pop(data['room'])
 
 
-def pick_word():
+def pick_word(room):
+    global players
     rows = Word.query.count()
     num = randrange(rows)
-    word = Word.query.filter_by(t_id=num).first()
-    session['word'] = word['t_word']
-    session['word_desc'] = word['t_desc']
+    word = Word.query.filter_by(t_id=num+1).first()
+    players[room][1] = word.t_word
+    players[room][2] = word.t_desc
 
 
 def check_out_player(player):
@@ -480,7 +550,8 @@ def check_out_player(player):
     '''
     # Get corresponding user object
     user = User.query.filter_by(t_emailaddr=player.email).first()
-    user.t_credits += player.points
+    player.ready = False
+    user.t_credits += player.get_points()
     db.session.commit()
 
 if __name__ == '__main__':
@@ -494,4 +565,5 @@ if __name__ == '__main__':
                         str(db_port) + '/' + db_name
     app.config['SQLALCHEMY_DATABASE_URI'] = db_connection_str
     app.config.from_object('config.config')
-    app.run()
+    app.jinja_env.filters['datetime'] = datetime_filter
+    socketio.run(app, host='0.0.0.0')

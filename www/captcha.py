@@ -33,7 +33,7 @@ def generate_captcha():
     # Fill the background with random color
     for x in range(width):
         for y in range(height):
-            draw.point((x,y), fill=rndcolor_background())
+            draw.point((x, y), fill=rndcolor_background())
     # Generate 4-letter captcha code
     cap = rnd_char() + rnd_char() + rnd_char() + rnd_char()
     draw.text((10, 0), cap, fill=rnd_color(), font=font)
