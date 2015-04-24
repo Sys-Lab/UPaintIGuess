@@ -15,6 +15,9 @@
 
 <div class="fa">
 <h2 align="center" style="margin-top:15px">UPaintIGuess</h2>
+ 
+    <div class="countdown" id="countdown">
+    </div>
 	
 	<div class="top" id="top">
         	<div id="font">
@@ -42,9 +45,7 @@
 	    &nbsp;&nbsp;
 	    <a href='/room' ><input type="button" value='Leave' class="btn btn-danger" onclick='websocket.leave()'/></a>
         </div>
-    
-    <div class="countdown" id="countdown">
-    </div>
+   
 
     <div class="right">
 	
@@ -59,8 +60,8 @@
 websocket.init();
 websocket.join();
 paint.init();
-//paint.toolsVisible();
-paint.toolsUnvisible();
+paint.toolsVisible();
+//paint.toolsUnvisible();
 //$('#top').hide();
 //	$('.send').hide();
 </script>
