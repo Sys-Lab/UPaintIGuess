@@ -34,7 +34,7 @@
         <ul class="nav">
           <li class="active"><a href="/">Home</a></li>
           {% if user %}
-		      <li><a href="/room">UPaintIGuess</a></li>
+		      <li><a href="/main/<room>">UPaintIGuess</a></li>
 		      <li><a href="/userinfo">User Info</a></li>
 		      <li><a href="/editinfo">Edit Information</a></li>
 		      <li><a href="/changepasswd">Change Password</a></li>

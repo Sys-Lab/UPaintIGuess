@@ -1,3 +1,9 @@
+{% extends '__base__.html' %}
+
+{% block title %}UPaintIGuess{% endblock %}
+
+{% block beforehead %}
+<!--
 <!doctype html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -11,6 +17,7 @@
 <script type="text/javascript" src="Public/js/myself/timer.js"></script>
 
 <script type="text/javascript" src="../Public/js/myself/question.js"></script>
+-->
 
 <style>
 html{background: black url('../Public/img/glow.png') no-repeat center center;height: 100%;_background: #0d7bd5;}

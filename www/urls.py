@@ -175,6 +175,8 @@ def edit_user_info():
 def change_password():
     return render_template('password.html', user=get_current_user())
 
+#@app.route('/room',methods=['GET'])
+#    return render_template('rooms.html',user=get_current_user())
 
 # APIs
 @app.route('/api/captcha', methods=['GET'])
