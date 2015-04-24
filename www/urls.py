@@ -2,15 +2,16 @@ import captcha
 import re
 import time
 import hashlib
-import random
+import traceback
 from flask import Flask, render_template, request, jsonify
 from flask import session, redirect, url_for, make_response
 from config import config
-from api import APIError, Player, dump_class
+from api import APIError, Player, datetime_filter
 from flask.ext.socketio import SocketIO, send, emit
 from flask.ext.socketio import join_room, leave_room
 from flask.ext.sqlalchemy import SQLAlchemy
 from random import randrange
+from base64 import b64decode
 
 
 _RE_MD5 = re.compile(r'^[0-9a-fA-F]{32}$')
@@ -286,7 +287,7 @@ def api_change_passwd():
         user.t_password = new_password
         db.session.commit()
         cancel_session()
-        return ''
+        return jsonify(value='')
     except KeyError, e:
         raise APIError(e.message, 500)
     except AttributeError, ex:
@@ -339,15 +340,17 @@ def api_edit_info():
         ext.t_birthday = birthday
         db.session.commit()
         return jsonify(user=user.getDict(), usrext=ext.getDict())
-    except Exception, e:
-        raise APIError(e.message, 500)
+    except Exception:
+        print traceback.format_exc()
+        raise APIError(traceback.format_exc(), 500)
 
 
 @app.route('/api/avatar', methods=['POST'])
 def api_upload_avatar():
     try:
-        img_file = request.files['img']
-        mime, extension = img_file.mimetype.split('/')
+        img_file = request.form['img']
+        content_type, body = process_file(img_file)
+        mime, extension = content_type.split('/')
         if not mime == 'image':
             raise APIError('You can only upload an image.')
         user = get_current_user()
@@ -357,10 +360,21 @@ def api_upload_avatar():
         path = 'static/images/uploads/' + filename
         ext.t_avatar = path
         db.session.commit()
-        img_file.save(path)
-        return jsonify(user=user.getDict(), usrext=ext.getDict())
-    except KeyError, e:
-        raise APIError(e.message, 500)
+        with open(path, 'wb') as f:
+            f.write(body)
+        return jsonify(src=path)
+    except KeyError:
+        print traceback.format_exc()
+        raise APIError(traceback.format_exc(), 500)
+
+
+def process_file(data):
+    head, body = data.split(',')
+    desc = head.split(':')[1]
+    mime, encoding = desc.split(';')
+    if encoding == 'base64':
+        body = b64decode(body)
+    return mime, body
 
 
 @app.route('/logout', methods=['GET'])
@@ -370,9 +384,12 @@ def api_logout():
 
 
 def cancel_session():
-    session.pop('username', None)
-    session.pop('email', None)
-    session.pop('password', None)
+    try:
+        session.pop('username', None)
+        session.pop('email', None)
+        session.pop('password', None)
+    except:
+        pass
 
 
 # Socket IO apis
@@ -518,26 +535,6 @@ def on_game_end(data):
     return players.pop(data['room'])
 
 
-'''
-def pick_word():
-    rows = Word.query.count()
-    num = randrange(rows)
-    word = Word.query.filter_by(t_id=num).first()
-    session['word'] = word['t_word']
-    session['word_desc'] = word['t_desc']
-    global players
-    p = 0
-    if players.has_key(data['room']):
-        for i in players[data['room']][0]:
-            if i.username == session['username']:
-                check_out_player(i)
-                p = i.get_points()
-                break
-    emit('msg', session['username'] + ':' + str(p), room=data['room'])
-    emit('restart', {})
-'''
-
-
 def pick_word(room):
     global players
     rows = Word.query.count()
@@ -568,4 +565,5 @@ if __name__ == '__main__':
                         str(db_port) + '/' + db_name
     app.config['SQLALCHEMY_DATABASE_URI'] = db_connection_str
     app.config.from_object('config.config')
+    app.jinja_env.filters['datetime'] = datetime_filter
     socketio.run(app, host='0.0.0.0')

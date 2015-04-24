@@ -1,6 +1,7 @@
 import json
 import time
 import hashlib
+from datetime import datetime
 
 
 class APIError(Exception):
@@ -62,3 +63,19 @@ class Player(object):
 
 def dump_class(cls):
     return json.dumps(cls, default=lambda obj: obj.__dict__)
+
+
+def datetime_filter(t):
+    if not t:
+        t = 0;
+    delta = int(time.time() - t)
+    if delta < 60:
+        return u'1 minute ago'
+    if delta < 3600:
+        return u'%s minutes ago' % (delta // 60)
+    if delta < 86400:
+        return u'%s hours ago' % (delta // 3600)
+    if delta < 604800:
+        return u'%s days ago' % (delta // 86400)
+    dt = datetime.fromtimestamp(t)
+    return u'%s/%s/%s' % (dt.year, dt.month, dt.day)
