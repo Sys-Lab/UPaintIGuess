@@ -1,0 +1,401 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"get",
+				"getHour"
+			],
+			[
+				"ge",
+				"getMin"
+			],
+			[
+				"ad",
+				"addMin"
+			],
+			[
+				"sub",
+				"submit	.submit()"
+			],
+			[
+				"t_cre",
+				"t_created_at"
+			],
+			[
+				"prev",
+				"prev_password"
+			],
+			[
+				"new_pass",
+				"new_password"
+			],
+			[
+				"new_pas",
+				"new_password"
+			],
+			[
+				"sc",
+				"script	Tag"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "guesswhatproj.sublime-project",
+			"settings":
+			{
+				"buffer_size": 342,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "www/urls.py",
+			"settings":
+			{
+				"buffer_size": 15934,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 392.0,
+		"last_filter": "dis",
+		"selected_items":
+		[
+			[
+				"dis",
+				"Package Control: Disable Package"
+			],
+			[
+				"enab",
+				"Package Control: Enable Package"
+			],
+			[
+				"in",
+				"Package Control: Install Package"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"inst",
+				"Package Control: Install Package"
+			],
+			[
+				"remo",
+				"Package Control: Remove Package"
+			],
+			[
+				"ena",
+				"Package Control: Enable Package"
+			],
+			[
+				"ins",
+				"Package Control: Install Package"
+			],
+			[
+				"disab",
+				"Package Control: Disable Package"
+			],
+			[
+				"remove",
+				"Package Control: Remove Package"
+			],
+			[
+				"i",
+				"Package Control: Install Package"
+			],
+			[
+				"insa",
+				"Snippet: input - search"
+			],
+			[
+				"packag",
+				"Preferences: Browse Packages"
+			]
+		],
+		"width": 593.0
+	},
+	"console":
+	{
+		"height": 126.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = 'eb2297e1a458f27d836c04bb0cbaf282' + 'd0e7a3098092775ccb37ca9d6b2e4b7d'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by) "
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/Users/Excelle/Documents/myprog/GuessWhatProj",
+		"/Users/Excelle/Documents/myprog/GuessWhatProj/www",
+		"/Users/Excelle/Documents/myprog/GuessWhatProj/www/static",
+		"/Users/Excelle/Documents/myprog/GuessWhatProj/www/static/js"
+	],
+	"file_history":
+	[
+		"/Users/Excelle/Downloads/student scores(1).cpp",
+		"/Users/Excelle/Documents/myprog/GuessWhatProj/www/urls.py",
+		"/Users/Excelle/Library/Application Support/Sublime Text 3/Packages/Anaconda/Anaconda.sublime-settings",
+		"/Users/Excelle/Downloads/student scores.cpp",
+		"/Users/Excelle/Documents/myprog/C/tree/main.c",
+		"/Users/Excelle/Documents/myprog/C/tree/tree.h",
+		"/Users/Excelle/Documents/myprog/py-equasis-crawler/register.py",
+		"/Users/Excelle/Documents/myprog/py-equasis-crawler/emails.list",
+		"/Users/Excelle/Documents/myprog/py-equasis-crawler/email.html",
+		"/Users/Excelle/Documents/myprog/C/safearray/safearray.h",
+		"/Users/Excelle/Documents/myprog/C/safearray/safearray.cpp",
+		"/Users/Excelle/IdeaProjects/gdp/result.xlsx",
+		"/Users/Excelle/Documents/myprog/C/safearray/main.cpp",
+		"/Users/Excelle/Documents/myprog/C/test.cpp",
+		"/Users/Excelle/Downloads/package/README.md",
+		"/Users/Excelle/Documents/myprog/GuessWhatProj/www/config/config_default.py",
+		"/Users/Excelle/Documents/myprog/GuessWhatProj/www/config/config.py",
+		"/Users/Excelle/Documents/myprog/GuessWhatProj/www/socktest.html",
+		"/Users/Excelle/Documents/myprog/GuessWhatProj/www/sock.py",
+		"/Users/Excelle/Documents/myprog/GuessWhatProj/www/templates/__base__.html",
+		"/Users/Excelle/Documents/myprog/GuessWhatProj/www/socketio_test.html",
+		"/Users/Excelle/Documents/myprog/GuessWhatProj/www/sock.js",
+		"/Users/Excelle/Downloads/package/dist/socket.io.js",
+		"/Users/Excelle/Documents/myprog/cmd_shell/server.py",
+		"/Users/Excelle/Documents/myprog/GuessWhat/www/urls.py",
+		"/Users/Excelle/Documents/myprog/GuessWhatProj/www/templates/__base__ .bak.html",
+		"/Users/Excelle/Documents/myprog/GuessWhatProj/www/templates/index_page.html",
+		"/Users/Excelle/Documents/myprog/GuessWhatProj/www/templates/register.html",
+		"/Users/Excelle/Documents/myprog/GuessWhatProj/www/templates/login.html",
+		"/Users/Excelle/PycharmProjects/awesome-python-webapp/www/static/js/vue.min.js",
+		"/Users/Excelle/Documents/myprog/GuessWhatProj/www/templates/login.bak2.html"
+	],
+	"find":
+	{
+		"height": 23.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"avatar",
+			"dump_class"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "guesswhatproj.sublime-project",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 342,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								220,
+								220
+							]
+						],
+						"settings":
+						{
+							"auto_complete": true,
+							"syntax": "Packages/JavaScript/JSON.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "www/urls.py",
+					"semi_transient": true,
+					"settings":
+					{
+						"buffer_size": 15934,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 5467.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 23.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.CppYCM.10":
+	{
+		"height": 0.0
+	},
+	"output.CppYCM.11":
+	{
+		"height": 0.0
+	},
+	"output.CppYCM.2":
+	{
+		"height": 0.0
+	},
+	"output.CppYCM.3":
+	{
+		"height": 0.0
+	},
+	"output.CppYCM.4":
+	{
+		"height": 0.0
+	},
+	"output.CppYCM.5":
+	{
+		"height": 0.0
+	},
+	"output.CppYCM.6":
+	{
+		"height": 0.0
+	},
+	"output.CppYCM.8":
+	{
+		"height": 0.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "guesswhatproj.sublime-project",
+	"replace":
+	{
+		"height": 42.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 230.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

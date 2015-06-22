@@ -5,6 +5,7 @@
 <h1><strong><p class='text-center'>Join Room</p></strong></h1>
 
 <div align="center">
+    <label>Create a room: </label><input type="text" id="room-token" readonly=1 value="" />
 	<label><strong>Room Number</strong></label>
 	<br/>
     <input id='join_room' type='text'/><br/>
@@ -17,5 +18,6 @@ $('#join').on('click',function(){
 	window.location.href='http://'+window.location.host+'/main/'+$('#join_room').val(); 
 
 })
+$('#room-token').val($.md5((new Date().getTime().toString())).toString().substr(1,6))
 </script>
 {% endblock %}
