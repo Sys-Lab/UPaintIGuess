@@ -3,3 +3,4 @@
 *.pages
 *.zip
 venv
+upload/*.*

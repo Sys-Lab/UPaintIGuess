@@ -6,7 +6,7 @@ configs = {
         'port': 3306,
         'user': 'root',
         'password': 'zgsdzlx',
-        'database': 'guesswhat'
+        'database': 'xiaoyu'
     },
     'session': {
         'secret': '62453b43d28ac38a'
