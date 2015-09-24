@@ -4,3 +4,5 @@
 *.zip
 venv
 upload/*.*
+.DS_Store		
+*.swp

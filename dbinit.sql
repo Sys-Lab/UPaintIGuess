@@ -27,15 +27,13 @@ create table user_school (
 
 create table user_meta (
     `uid` int(10) not null primary key,
-    `nickname` varchar(32) not null,
-    `realname` varchar(32) not null,
+    `nickname` varchar(32),
+    `realname` varchar(32),
     `gender` tinyint(2),
     `age` tinyint(3),
     `height` real,
     `birthday` real,
     `horoscope` tinyint(3),
-    `school` int(9),
-    `degree` int(9),
     `hometown_province` int(9), 
     `hometown_city` int(9),
     `hometown_addr` text,
@@ -43,7 +41,9 @@ create table user_meta (
     `workplace_city` int(9),
     `workplace_addr` text,
     `contact` text,
-    `motto` text
+    `motto` text,
+	`show_name` boolean,
+	`show_contact` boolean
 ) engine=innodb default charset=utf8;
 
 create table user_ext (
